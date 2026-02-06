@@ -1,0 +1,156 @@
+<!-- Sidebar Overlay -->
+<div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<!-- Sidebar -->
+<aside id="sidebar">
+    <div class="sidebar-header d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-2">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                style="width: 35px; height: 35px;">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <span class="fw-bold h5 mb-0">QuickDeliver</span>
+        </div>
+        <button class="btn btn-link text-dark p-0" onclick="toggleSidebar()">
+            <i class="fas fa-times fa-lg"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-user-info p-4 border-bottom">
+        <% if (locals.user && user.id) { %>
+            <div class="d-flex align-items-center gap-3">
+                <img src="<%= user.profile_picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.full_name || user.email) + '&background=00A082&color=fff' %>"
+                    class="rounded-circle border" style="width: 50px; height: 50px; object-fit: cover;">
+                <div>
+                    <h6 class="mb-0 fw-bold">
+                        <%= user.full_name || user.email %>
+                    </h6>
+                    <span class="badge bg-primary bg-opacity-10 text-primary small rounded-pill">
+                        <%= (user.user_type || 'Guest' ).charAt(0).toUpperCase() + (user.user_type || 'Guest' ).slice(1)
+                            %>
+                    </span>
+                </div>
+            </div>
+            <% } else { %>
+                <div class="text-center">
+                    <p class="text-muted small mb-3">Welcome to QuickDeliver</p>
+                    <div class="d-grid gap-2">
+                        <a href="/auth/login" class="btn btn-primary btn-sm rounded-pill">Login</a>
+                        <a href="/auth/register" class="btn btn-outline-primary btn-sm rounded-pill">Register</a>
+                    </div>
+                </div>
+                <% } %>
+    </div>
+
+    <nav class="sidebar-nav p-3">
+        <ul class="list-unstyled">
+            <li class="mb-1">
+                <a href="/"
+                    class="sidebar-link <%= locals.title === 'Home' || locals.title === 'Dashboard' ? 'active' : '' %>">
+                    <i class="fas fa-home me-3"></i> Home
+                </a>
+            </li>
+
+            <% if (locals.user && user.id) { %>
+                <!-- Customer Links -->
+                <% if (user.user_type==='customer' ) { %>
+                    <li class="mb-1">
+                        <a href="/customer/stores"
+                            class="sidebar-link <%= locals.title === 'Browse Stores' ? 'active' : '' %>">
+                            <i class="fas fa-store me-3"></i> Browse Stores
+                        </a>
+                    </li>
+                    <li class="mb-1">
+                        <a href="/customer/orders" class="sidebar-link">
+                            <i class="fas fa-shopping-bag me-3"></i> My Orders
+                        </a>
+                    </li>
+                    <li class="mb-1">
+                        <a href="/customer/cart" class="sidebar-link">
+                            <i class="fas fa-shopping-cart me-3"></i> My Cart
+                        </a>
+                    </li>
+                    <li class="mb-1">
+                        <a href="/customer/wallet" class="sidebar-link">
+                            <i class="fas fa-wallet me-3"></i> My Wallet
+                        </a>
+                    </li>
+                    <% } %>
+
+                        <!-- Seller Links -->
+                        <% if (user.user_type==='seller' ) { %>
+                            <li class="mb-1">
+                                <a href="/seller/dashboard" class="sidebar-link">
+                                    <i class="fas fa-chart-line me-3"></i> Seller Dashboard
+                                </a>
+                            </li>
+                            <li class="mb-1">
+                                <a href="/seller/products" class="sidebar-link">
+                                    <i class="fas fa-box me-3"></i> Manage Products
+                                </a>
+                            </li>
+                            <li class="mb-1">
+                                <a href="/seller/orders" class="sidebar-link">
+                                    <i class="fas fa-list-ul me-3"></i> Store Orders
+                                </a>
+                            </li>
+                            <% } %>
+
+                                <!-- Rider Links -->
+                                <% if (user.user_type==='rider' ) { %>
+                                    <li class="mb-1">
+                                        <a href="/rider/dashboard" class="sidebar-link">
+                                            <i class="fas fa-motorcycle me-3"></i> Rider Panel
+                                        </a>
+                                    </li>
+                                    <li class="mb-1">
+                                        <a href="/rider/available-orders" class="sidebar-link">
+                                            <i class="fas fa-map-marked-alt me-3"></i> Available Jobs
+                                        </a>
+                                    </li>
+                                    <% } %>
+
+                                        <!-- Admin Links -->
+                                        <% if (user.user_type==='admin' ) { %>
+                                            <li class="mb-1">
+                                                <a href="/admin/dashboard" class="sidebar-link">
+                                                    <i class="fas fa-user-shield me-3"></i> Admin Panel
+                                                </a>
+                                            </li>
+                                            <li class="mb-1">
+                                                <a href="/admin/users" class="sidebar-link">
+                                                    <i class="fas fa-users me-3"></i> User Management
+                                                </a>
+                                            </li>
+                                            <li class="mb-1">
+                                                <a href="/admin/stores" class="sidebar-link">
+                                                    <i class="fas fa-store-alt me-3"></i> Store Approvals
+                                                </a>
+                                            </li>
+                                            <% } %>
+
+                                                <li class="mt-4 pt-3 border-top">
+                                                    <a href="/auth/logout" class="sidebar-link text-danger">
+                                                        <i class="fas fa-sign-out-alt me-3"></i> Logout
+                                                    </a>
+                                                </li>
+                                                <% } %>
+        </ul>
+    </nav>
+
+    <div class="sidebar-footer p-4 mt-auto">
+        <p class="small text-muted mb-0">&copy; 2026 QuickDeliver v1.0</p>
+    </div>
+</aside>
+
+<script>
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        if (sidebar && overlay) {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            document.body.classList.toggle('sidebar-open');
+        }
+    }
+</script>

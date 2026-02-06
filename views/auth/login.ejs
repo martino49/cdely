@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | QuickDeliver</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #4361ee, #3f37c9);
+            --primary-blue: #4361ee;
+            --light-blue: #f0f7ff;
+            --dark-text: #2b2d42;
+            --gray-text: #8d99ae;
+            --border-color: #edf2f4;
+            --white: #ffffff;
+            --error-red: #ef233c;
+        }
+
+        * {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark-text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 900px;
+            height: 600px;
+            background-color: var(--white);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            position: relative;
+        }
+
+        .visual-side {
+            flex: 1;
+            background: var(--primary-gradient);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: white;
+            position: relative;
+        }
+
+        .visual-side::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1512152272829-e3139592d56f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.1;
+        }
+
+        .logo-container {
+            text-align: center;
+            z-index: 2;
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 280px;
+            line-height: 1.4;
+        }
+
+        .form-side {
+            flex: 1.2;
+            padding: 60px 50px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: white;
+        }
+
+        .panel-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--dark-text);
+        }
+
+        .panel-subtitle {
+            color: var(--gray-text);
+            font-size: 15px;
+            margin-bottom: 35px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--dark-text);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.2s;
+            background: #fcfcfc;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-blue);
+            background: white;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.05);
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-weight: 700;
+            color: white;
+            width: 100%;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            background: #3651d1;
+            transform: translateY(-2px);
+        }
+
+        .forgot-pass {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .forgot-pass a {
+            font-size: 14px;
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .register-link {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 15px;
+            color: var(--gray-text);
+        }
+
+        .register-link a {
+            color: var(--primary-blue);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-text);
+            text-decoration: none;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .back-link:hover {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        .alert {
+            border-radius: 12px;
+            font-weight: 500;
+            margin-bottom: 25px;
+            border: none;
+        }
+
+        @media (max-width: 900px) {
+            .auth-container {
+                flex-direction: column;
+                height: auto;
+                max-width: 450px;
+            }
+
+            .visual-side {
+                padding: 40px 30px;
+                min-height: 180px;
+            }
+
+            .form-side {
+                padding: 40px 30px;
+            }
+
+            .back-link {
+                top: 10px;
+                right: 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="/customer/stores" class="back-link">
+        <i class="fas fa-arrow-left me-2"></i> Back to Browsing
+    </a>
+
+    <div class="auth-container">
+        <div class="visual-side">
+            <div class="logo-container">
+                <div class="logo">QuickDeliver</div>
+                <p class="tagline">Welcome back! Sign in to keep tracking your deliveries and managing your favorites.
+                </p>
+            </div>
+        </div>
+
+        <div class="form-side">
+            <h2 class="panel-title">Welcome Back</h2>
+            <p class="panel-subtitle">Please enter your credentials to login.</p>
+
+            <% if (typeof error !=='undefined' && error) { %>
+                <div class="alert alert-danger bg-danger-subtle text-danger p-3">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <%= error %>
+                </div>
+                <% } %>
+
+                    <form action="/auth/login" method="POST">
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-input" placeholder="name@example.com" required
+                                autofocus>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+                        </div>
+
+                        <div class="forgot-pass">
+                            <a href="/auth/forgot-password">Forgot Password?</a>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Sign In</button>
+
+                        <div class="register-link">
+                            New to QuickDeliver? <a href="/auth/register">Create Account</a>
+                        </div>
+                    </form>
+
+                    <div class="mt-5 p-3 bg-light rounded-4">
+                        <h6 class="fw-bold mb-2 small text-uppercase text-muted">Demo Access</h6>
+                        <div class="d-flex justify-content-between x-small text-muted mb-1">
+                            <span>Customer: customer@example.com</span>
+                            <span class="fw-bold">password123</span>
+                        </div>
+                        <div class="d-flex justify-content-between x-small text-muted">
+                            <span>Admin: admin@example.com</span>
+                            <span class="fw-bold">password123</span>
+                        </div>
+                    </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

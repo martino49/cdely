@@ -1,0 +1,167 @@
+<%- include('../partials/header', { title: 'Active Delivery' }) %>
+
+    <div class="container-fluid p-0 position-relative" style="height: calc(100vh - 70px);">
+        <% if (delivery) { %>
+            <!-- Map Background -->
+            <div id="map" class="w-100 h-100"></div>
+
+            <!-- Floating Info Cards -->
+            <div class="position-absolute top-0 start-0 w-100 p-3" style="z-index: 1000;">
+                <div class="row g-3">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                            <div class="card-body p-3 bg-white">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="badge bg-primary rounded-pill px-3">Order #<%= delivery.order_number %>
+                                    </span>
+                                    <span class="text-muted small fw-bold">Active</span>
+                                </div>
+                                <h5 class="fw-bold text-dark mb-1">
+                                    <%= delivery.store_name %>
+                                </h5>
+                                <p class="text-muted small mb-0"><i class="fas fa-map-marker-alt text-danger me-1"></i>
+                                    <%= delivery.store_address %>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Action Panel -->
+            <div class="position-absolute bottom-0 start-0 w-100 p-3" style="z-index: 1000;">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden mx-auto" style="max-width: 500px;">
+                    <div class="card-body p-4 bg-white">
+                        <div class="d-flex align-items-center gap-3 mb-4">
+                            <div class="bg-light p-3 rounded-circle text-primary">
+                                <i class="fas fa-user-circle fa-2x"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <h6 class="fw-bold text-dark mb-0">
+                                    <%= delivery.customer_name %>
+                                </h6>
+                                <p class="text-muted small mb-0">
+                                    <%= delivery.delivery_address %>
+                                </p>
+                            </div>
+                            <a href="tel:<%= delivery.customer_phone %>"
+                                class="btn btn-success rounded-circle shadow-sm"
+                                style="width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-phone"></i>
+                            </a>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <% if (delivery.status==='assigned' ) { %>
+                                <button class="btn btn-primary btn-lg rounded-pill fw-bold py-3 transition-all"
+                                    onclick="updateStatus('<%= delivery.id %>', 'arrived_at_store')">
+                                    <i class="fas fa-store me-2"></i> Arrived at Store
+                                </button>
+                                <% } else if (delivery.status==='arrived_at_store' ) { %>
+                                    <button class="btn btn-warning btn-lg rounded-pill fw-bold py-3 transition-all"
+                                        onclick="updateStatus('<%= delivery.id %>', 'picked_up')">
+                                        <i class="fas fa-shopping-bag me-2"></i> Confirm Pick Up
+                                    </button>
+                                    <% } else if (delivery.status==='picked_up' ) { %>
+                                        <button class="btn btn-success btn-lg rounded-pill fw-bold py-3 transition-all"
+                                            onclick="updateStatus('<%= delivery.id %>', 'delivered')">
+                                            <i class="fas fa-check-circle me-2"></i> Mark as Delivered
+                                        </button>
+                                        <% } %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+            <link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+            <script>
+                mapboxgl.accessToken = '<%= MapboxToken || "pk.eyJ1IjoiZ2VtaW5pLWFpIiwiYSI6ImNsajFmZjFmYTAxeTMzZHBtYm0xZjFmYjkifQ.placeholder" %>';
+
+                const map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/streets-v12',
+                    center: [36.8219, -1.2921], // Nairobi default
+                    zoom: 13
+                });
+
+                // Mock Store Marker
+                new mapboxgl.Marker({ color: '#4361ee' })
+                    .setLngLat([36.8219, -1.2921])
+                    .setPopup(new mapboxgl.Popup().setHTML("<h6><%= delivery.store_name %></h6>"))
+                    .addTo(map);
+
+                // Mock Customer Marker
+                new mapboxgl.Marker({ color: '#f72585' })
+                    .setLngLat([36.83, -1.30])
+                    .setPopup(new mapboxgl.Popup().setHTML("<h6>Customer: <%= delivery.customer_name %></h6>"))
+                    .addTo(map);
+
+                async function updateStatus(deliveryId, status) {
+                    try {
+                        const response = await fetch('/rider/update-status', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ deliveryId, status })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            location.reload();
+                        }
+                    } catch (error) {
+                        console.error('Update status failed:', error);
+                    }
+                }
+            </script>
+            <% } else { %>
+                <div class="h-100 d-flex align-items-center justify-content-center bg-light">
+                    <div class="text-center p-5">
+                        <i class="fas fa-motorcycle fa-4x text-muted opacity-25 mb-4"></i>
+                        <h3 class="fw-bold text-dark">No Active Delivery</h3>
+                        <p class="text-muted">Accept an order from the available jobs list to start.</p>
+                        <a href="/rider/available-orders" class="btn btn-primary rounded-pill px-5 mt-3 fw-bold">View
+                            Available Jobs</a>
+                    </div>
+                </div>
+                <% } %>
+    </div>
+
+    <style>
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+
+        .display-5 {
+            font-weight: 800;
+        }
+    </style>
+
+    <%- include('../partials/rider-location') %>
+        <script>
+            // Update rider marker on map when location updates are received
+            let riderMarker = null;
+
+            if (typeof socket !== 'undefined') {
+                socket.on('location-update', (data) => {
+                    if (!riderMarker) {
+                        riderMarker = new mapboxgl.Marker({
+                            color: '#2ed573',
+                            scale: 0.8
+                        })
+                            .setLngLat([data.lng, data.lat])
+                            .setPopup(new mapboxgl.Popup().setHTML("<h6>You are here</h6>"))
+                            .addTo(map);
+                    } else {
+                        riderMarker.setLngLat([data.lng, data.lat]);
+                    }
+                });
+            }
+        </script>
+        <%- include('../partials/footer') %>

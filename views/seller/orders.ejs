@@ -1,0 +1,203 @@
+<%- include('../partials/header', { title: 'Store Orders' }) %>
+
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-5 gap-3 flex-wrap">
+            <div>
+                <h2 class="fw-bold text-dark mb-1">Store Orders</h2>
+                <p class="text-muted mb-0">Track and fulfill customer requests in real-time</p>
+            </div>
+            <div class="btn-group bg-white p-1 rounded-pill shadow-sm border">
+                <a href="/seller/orders"
+                    class="btn btn-pill <%= !currentStatus ? 'btn-primary' : 'btn-white text-muted' %> px-4">All</a>
+                <a href="/seller/orders?status=pending"
+                    class="btn btn-pill <%= currentStatus === 'pending' ? 'btn-primary' : 'btn-white text-muted' %> px-4">Pending</a>
+                <a href="/seller/orders?status=preparing"
+                    class="btn btn-pill <%= currentStatus === 'preparing' ? 'btn-primary' : 'btn-white text-muted' %> px-4">Preparing</a>
+                <a href="/seller/orders?status=delivered"
+                    class="btn btn-pill <%= currentStatus === 'delivered' ? 'btn-primary' : 'btn-white text-muted' %> px-4">Delivered</a>
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light bg-opacity-50">
+                        <tr>
+                            <th class="ps-4 py-4 text-uppercase small fw-800 text-muted" style="letter-spacing: 1px;">
+                                Order Information</th>
+                            <th class="text-uppercase small fw-800 text-muted" style="letter-spacing: 1px;">Customer
+                            </th>
+                            <th class="text-uppercase small fw-800 text-muted" style="letter-spacing: 1px;">Status</th>
+                            <th class="text-uppercase small fw-800 text-muted" style="letter-spacing: 1px;">Placed On
+                            </th>
+                            <th class="text-uppercase small fw-800 text-muted" style="letter-spacing: 1px;">Total</th>
+                            <th class="pe-4 text-end text-uppercase small fw-800 text-muted"
+                                style="letter-spacing: 1px;">Workflow</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (orders && orders.length> 0) { %>
+                            <% orders.forEach(order=> { %>
+                                <tr class="transition-all hover-bg-light">
+                                    <td class="ps-4 py-4">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="bg-primary bg-opacity-10 text-primary p-2 rounded-3">
+                                                <i class="fas fa-receipt"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-900 text-dark">#<%= order.order_number %>
+                                                </div>
+                                                <small class="text-muted">
+                                                    <%= order.payment_method.toUpperCase() %>
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="fw-bold text-dark">
+                                            <%= order.customer_name || 'Customer' %>
+                                        </div>
+                                        <small class="text-muted"><i class="fas fa-phone-alt me-1 x-small"></i>
+                                            <%= order.customer_phone || 'N/A' %>
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge rounded-pill px-3 py-2 fw-bold bg-<%= 
+                                            order.order_status === 'delivered' ? 'success' : 
+                                            order.order_status === 'pending' ? 'warning' : 
+                                            order.order_status === 'preparing' ? 'info' : 'secondary'
+                                        %> bg-opacity-10 text-<%= 
+                                            order.order_status === 'delivered' ? 'success' : 
+                                            order.order_status === 'pending' ? 'warning' : 
+                                            order.order_status === 'preparing' ? 'info' : 'secondary'
+                                        %>">
+                                            <i class="fas fa-circle x-small me-1"></i>
+                                            <%= order.order_status.toUpperCase().replace('_', ' ' ) %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark small">
+                                            <%= new Date(order.created_at).toLocaleDateString() %>
+                                        </div>
+                                        <div class="text-muted x-small">
+                                            <%= new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit' ,
+                                                minute: '2-digit' }) %>
+                                        </div>
+                                    </td>
+                                    <td class="fw-800 text-dark">KES <%= order.total_amount.toLocaleString() %>
+                                    </td>
+                                    <td class="pe-4 text-end">
+                                        <% if (order.order_status==='pending' ) { %>
+                                            <button class="btn btn-sm btn-primary rounded-pill px-4 fw-bold shadow-sm"
+                                                onclick="processOrder('<%= order.id %>', 'preparing')">Accept &
+                                                Prep</button>
+                                            <% } else if (order.order_status==='preparing' ) { %>
+                                                <button
+                                                    class="btn btn-sm btn-success rounded-pill px-4 fw-bold shadow-sm"
+                                                    onclick="processOrder('<%= order.id %>', 'ready_for_pickup')">Ready
+                                                    for Delivery</button>
+                                                <% } else { %>
+                                                    <a href="/customer/order/<%= order.id %>"
+                                                        class="btn btn-sm btn-light border rounded-pill px-3 fw-bold">View
+                                                        Details</a>
+                                                    <% } %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="6" class="text-center py-5">
+                                                <div class="py-5">
+                                                    <i class="fas fa-receipt fa-4x text-muted opacity-25 mb-4"></i>
+                                                    <h4 class="fw-bold text-dark">No orders found</h4>
+                                                    <p class="text-muted">Orders matching your current filter will
+                                                        appear here.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .btn-pill {
+            border: none !important;
+            border-radius: 50px !important;
+            transition: all 0.3s ease;
+        }
+
+        .btn-pill.btn-primary {
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
+
+        .hover-bg-light:hover {
+            background-color: rgba(0, 0, 0, 0.01);
+        }
+
+        .fw-800 {
+            font-weight: 800;
+        }
+
+        .fw-900 {
+            font-weight: 900;
+        }
+
+        .x-small {
+            font-size: 0.7rem;
+        }
+
+        .transition-all {
+            transition: all 0.2s ease;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        async function processOrder(orderId, status) {
+            const statusLabel = status.replace('_', ' ');
+
+            Swal.fire({
+                title: 'Order Workflow',
+                text: `Transition order to "${statusLabel}"?`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#4361ee',
+                cancelButtonColor: '#f72585',
+                confirmButtonText: 'Yes, proceed'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch('/seller/order/update-status', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ orderId, status })
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Success',
+                                text: data.message,
+                                icon: 'success',
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    } catch (error) {
+                        console.error('Update failed:', error);
+                        Swal.fire('Error', 'Communication with server failed', 'error');
+                    }
+                }
+            });
+        }
+    </script>
+
+    <%- include('../partials/footer') %>
+
+        <%- include('../partials/footer') %>

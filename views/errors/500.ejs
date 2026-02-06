@@ -1,0 +1,24 @@
+<%- include('../partials/header', { title: 'Server Error' }) %>
+
+    <div class="container mt-5 pt-5 text-center">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <h1 class="display-1 text-danger">500</h1>
+                <h2 class="mb-4">Internal Server Error</h2>
+                <p class="lead mb-4">Something went wrong on our end.</p>
+
+                <% if (typeof error !=='undefined' && error) { %>
+                    <div class="alert alert-danger text-start">
+                        <strong>Error Details:</strong>
+                        <pre class="mt-2 text-wrap"><%= error %></pre>
+                    </div>
+                    <% } %>
+
+                        <a href="/" class="btn btn-primary mt-3">
+                            <i class="fas fa-home"></i> Return Home
+                        </a>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>

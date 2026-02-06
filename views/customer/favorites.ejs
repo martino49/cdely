@@ -1,0 +1,109 @@
+<%- include('../partials/header', { title: 'My Favorites' }) %>
+
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold m-0 text-dark">My Favorites</h2>
+            <span class="badge bg-primary rounded-pill">
+                <%= favorites.length %> items
+            </span>
+        </div>
+
+        <% if (favorites && favorites.length> 0) { %>
+            <div class="row g-4">
+                <% favorites.forEach(item=> { %>
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <div
+                            class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative favorite-card">
+                            <button
+                                class="btn btn-light btn-sm rounded-circle position-absolute top-0 end-0 m-3 shadow-sm z-3 toggle-fav-btn"
+                                onclick="toggleFavorite('<%= item.item_id %>', '<%= item.item_type %>')">
+                                <i class="fas fa-heart text-danger"></i>
+                            </button>
+
+                            <a href="/customer/<%= item.item_type %>/<%= item.item_id %>"
+                                class="text-decoration-none h-100 d-flex flex-column">
+                                <div class="ratio ratio-1x1 bg-light">
+                                    <img src="<%= item.image_url || '/images/placeholder.jpg' %>"
+                                        class="object-fit-cover transition-transform" alt="<%= item.name %>">
+                                </div>
+                                <div class="card-body">
+                                    <span class="badge bg-light text-secondary mb-2 text-uppercase small ls-1">
+                                        <%= item.item_type %>
+                                    </span>
+                                    <h6 class="fw-bold text-dark mb-2 text-truncate-2">
+                                        <%= item.name %>
+                                    </h6>
+                                    <% if (item.item_type==='product' && item.price) { %>
+                                        <div class="mt-auto">
+                                            <% if (item.discounted_price) { %>
+                                                <span class="text-muted text-decoration-line-through small me-2">KES <%=
+                                                        item.price %></span>
+                                                <span class="fw-bold text-success">KES <%= item.discounted_price %>
+                                                        </span>
+                                                <% } else { %>
+                                                    <span class="fw-bold text-success">KES <%= item.price %></span>
+                                                    <% } %>
+                                        </div>
+                                        <% } %>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    <% }) %>
+            </div>
+            <% } else { %>
+                <div class="text-center py-5 bg-white rounded-4 shadow-sm">
+                    <div class="mb-4">
+                        <i class="far fa-heart fa-4x text-muted opacity-25"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">No favorites yet</h4>
+                    <p class="text-muted">Save your favorite products and stores here for quick access.</p>
+                    <a href="/customer/stores" class="btn btn-primary rounded-pill px-4 mt-2">Browse Stores</a>
+                </div>
+                <% } %>
+    </div>
+
+    <style>
+        .favorite-card:hover .transition-transform {
+            transform: scale(1.05);
+        }
+
+        .transition-transform {
+            transition: transform 0.4s ease;
+        }
+
+        .text-truncate-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .ls-1 {
+            letter-spacing: 0.5px;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        async function toggleFavorite(itemId, itemType) {
+            try {
+                const response = await fetch('/customer/favorites/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ itemId, itemType })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                } else {
+                    Swal.fire('Error', 'Failed to update favorites', 'error');
+                }
+            } catch (error) {
+                console.error('Toggle favorite error:', error);
+                Swal.fire('Error', 'Something went wrong', 'error');
+            }
+        }
+    </script>
+
+    <%- include('../partials/header') %>

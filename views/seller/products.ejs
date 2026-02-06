@@ -1,0 +1,268 @@
+<%- include('../partials/header', { title: 'Manage Products' }) %>
+
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark">Manage Products</h2>
+                <p class="text-muted">Edit existence or add new products to your catalogue</p>
+            </div>
+            <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addProductModal">
+                <i class="fas fa-plus me-2"></i> Add New Product
+            </button>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3 text-uppercase small fw-bold text-muted">Product</th>
+                            <th class="text-uppercase small fw-bold text-muted">Price</th>
+                            <th class="text-uppercase small fw-bold text-muted">Stock</th>
+                            <th class="text-uppercase small fw-bold text-muted">Status</th>
+                            <th class="pe-4 text-end text-uppercase small fw-bold text-muted">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% if (products && products.length> 0) { %>
+                            <% products.forEach(product=> { %>
+                                <tr>
+                                    <td class="ps-4 py-3">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <% let imageUrl='https://via.placeholder.com/50' ; try { let urls=[]; if
+                                                (product.image_urls) { if (typeof product.image_urls==='string' ) { if
+                                                (product.image_urls.trim().startsWith('[')) {
+                                                urls=JSON.parse(product.image_urls); } else { urls=[product.image_urls];
+                                                } } else if (Array.isArray(product.image_urls)) {
+                                                urls=product.image_urls; } } if (urls && urls.length> 0) imageUrl =
+                                                urls[0];
+                                                } catch(e) {
+                                                if(typeof product.image_urls === 'string') imageUrl =
+                                                product.image_urls;
+                                                }
+                                                %>
+                                                <img src="<%= imageUrl %>" class="rounded-3 shadow-sm" width="50"
+                                                    height="50" style="object-fit: cover;">
+                                                <div>
+                                                    <h6 class="fw-bold mb-0 text-dark">
+                                                        <%= product.name %>
+                                                    </h6>
+                                                    <small class="text-muted">
+                                                        <%= product.category %>
+                                                    </small>
+                                                </div>
+                                        </div>
+                                    </td>
+                                    <td class="fw-bold text-primary">
+                                        KES <%= product.price.toLocaleString() %>
+                                    </td>
+                                    <td>
+                                        <span class="fw-500">
+                                            <%= product.stock_quantity %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge bg-<%= product.is_available ? 'success' : 'danger' %> bg-opacity-10 text-<%= product.is_available ? 'success' : 'danger' %> rounded-pill px-3">
+                                            <%= product.is_available ? 'ACTIVE' : 'OUT OF STOCK' %>
+                                        </span>
+                                    </td>
+                                    <td class="pe-4 text-end">
+                                        <div class="btn-group">
+                                            <button
+                                                class="btn btn-sm btn-light rounded-circle p-2 me-1 shadow-sm border"
+                                                onclick='openEditModal(<%- JSON.stringify(product) %>)'>
+                                                <i class="fas fa-edit text-primary"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-light rounded-circle p-2 shadow-sm border"
+                                                onclick="deleteProduct('<%= product.id %>')">
+                                                <i class="far fa-trash-alt text-danger"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="5" class="text-center py-5 text-muted">
+                                                <i class="fas fa-box-open fa-3x mb-3 opacity-25"></i>
+                                                <p>No products added to your store yet.</p>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Functional Add/Edit Product Modal -->
+    <div class="modal fade" id="addProductModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0 p-4">
+                    <h5 class="fw-bold mb-0" id="modalTitle">Add New Product</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="productForm">
+                        <input type="hidden" id="productId" name="id">
+                        <div class="row g-3">
+                            <div class="col-8">
+                                <label class="form-label small fw-bold text-muted">Product Name</label>
+                                <input type="text" class="form-control rounded-3 py-2" name="name" id="pName" required
+                                    placeholder="e.g. Classic Beef Burger">
+                            </div>
+                            <div class="col-4">
+                                <label class="form-label small fw-bold text-muted">Category</label>
+                                <select class="form-select rounded-3 py-2" name="category" id="pCategory" required>
+                                    <option value="Food">Food</option>
+                                    <option value="Groceries">Groceries</option>
+                                    <option value="Electronics">Electronics</option>
+                                    <option value="Fashion">Fashion</option>
+                                    <option value="Pharmacy">Pharmacy</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-muted">Description</label>
+                                <textarea class="form-control rounded-3" name="description" id="pDesc" rows="3" required
+                                    placeholder="Describe your product..."></textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted">Price (KES)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">KES</span>
+                                    <input type="number" class="form-control rounded-end-3" name="price" id="pPrice"
+                                        required step="0.01">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted">Discounted Price</label>
+                                <input type="number" class="form-control rounded-3" name="discounted_price"
+                                    id="pDiscount" step="0.01">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-muted">Initial Stock</label>
+                                <input type="number" class="form-control rounded-3" name="stock_quantity" id="pStock"
+                                    required min="1">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold text-muted">Image URL</label>
+                                <input type="url" class="form-control rounded-3" name="image_urls" id="pImages" required
+                                    placeholder="https://example.com/image.jpg">
+                                <div class="form-text small">Provide a direct link to a high-quality product image.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold shadow-sm"
+                                id="submitBtn">Create Product</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        const productForm = document.getElementById('productForm');
+        const modal = new bootstrap.Modal(document.getElementById('addProductModal'));
+
+        function openEditModal(product) {
+            document.getElementById('modalTitle').innerText = 'Edit Product';
+            document.getElementById('submitBtn').innerText = 'Update Product';
+            document.getElementById('productId').value = product.id;
+            document.getElementById('pName').value = product.name;
+            document.getElementById('pCategory').value = product.category;
+            document.getElementById('pDesc').value = product.description;
+            document.getElementById('pPrice').value = product.price;
+            document.getElementById('pDiscount').value = product.discounted_price || '';
+            document.getElementById('pStock').value = product.stock_quantity;
+
+            // Handle image URL
+            try {
+                let urls = [];
+                if (product.image_urls) {
+                    if (typeof product.image_urls === 'string') {
+                        if (product.image_urls.trim().startsWith('[')) {
+                            urls = JSON.parse(product.image_urls);
+                        } else {
+                            urls = [product.image_urls];
+                        }
+                    } else {
+                        urls = product.image_urls;
+                    }
+                }
+                document.getElementById('pImages').value = urls && urls.length > 0 ? urls[0] : '';
+            } catch (e) {
+                document.getElementById('pImages').value = '';
+            }
+
+            modal.show();
+        }
+
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(productForm);
+            const data = Object.fromEntries(formData.entries());
+            const isEdit = !!data.id;
+            const url = isEdit ? `/seller/products/${data.id}` : '/seller/products';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    Swal.fire('Success', result.message, 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('Error', result.message, 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Communication error', 'error');
+            }
+        });
+
+        async function deleteProduct(id) {
+            Swal.fire({
+                title: 'Delete Product?',
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#f72585',
+                confirmButtonText: 'Yes, delete it!'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const response = await fetch(`/seller/products/${id}`, { method: 'DELETE' });
+                        const data = await response.json();
+                        if (data.success) {
+                            Swal.fire('Deleted!', data.message, 'success').then(() => location.reload());
+                        }
+                    } catch (error) {
+                        Swal.fire('Error', 'Deletion failed', 'error');
+                    }
+                }
+            });
+        }
+    </script>
+
+    <style>
+        .fw-500 {
+            font-weight: 500;
+        }
+
+        .transition-all {
+            transition: all 0.2s ease;
+        }
+
+        .hover-bg-light:hover {
+            background-color: rgba(0, 0, 0, 0.01);
+        }
+    </style>
+
+    <%- include('../partials/footer') %>

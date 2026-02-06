@@ -1,0 +1,79 @@
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    let locationWatchId = null;
+
+    function startLocationTracking(orderId) {
+        if (!navigator.geolocation) {
+            console.error("Geolocation is not supported by this browser.");
+            return;
+        }
+
+        if (locationWatchId) {
+            navigator.geolocation.clearWatch(locationWatchId);
+        }
+
+        locationWatchId = navigator.geolocation.watchPosition(
+            (position) => {
+                const { latitude, longitude, accuracy } = position.coords;
+                console.log(`Rider Location: ${latitude}, ${longitude} (±${accuracy}m)`);
+
+                socket.emit('rider-location', {
+                    orderId: orderId,
+                    lat: latitude,
+                    lng: longitude,
+                    accuracy: accuracy,
+                    timestamp: new Date().toISOString()
+                });
+            },
+            (error) => {
+                console.error("Error getting location:", error.message);
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        alert("User denied the request for Geolocation.");
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        console.warn("Location information is unavailable.");
+                        break;
+                    case error.TIMEOUT:
+                        console.warn("The request to get user location timed out.");
+                        break;
+                }
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 0
+            }
+        );
+    }
+
+    function stopLocationTracking() {
+        if (locationWatchId) {
+            navigator.geolocation.clearWatch(locationWatchId);
+            locationWatchId = null;
+            console.log("Tracking stopped.");
+        }
+    }
+
+    // Auto-start tracking if we are on an active delivery page with a delivery ID
+    <% if (typeof delivery !== 'undefined' && delivery && delivery.order_id) { %>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Starting tracking for Order #<%= delivery.order_id %>");
+            startLocationTracking('<%= delivery.order_id %>');
+        });
+    <% } %>
+
+        // Handle online/offline toggle if applicable
+        window.toggleRiderStatus = async (status) => {
+            try {
+                // This would call a backend endpoint to update rider status (online/offline)
+                console.log(`Rider status set to: ${status}`);
+                if (status === 'offline') {
+                    stopLocationTracking();
+                }
+            } catch (error) {
+                console.error("Error updating rider status:", error);
+            }
+        };
+</script>

@@ -1,0 +1,108 @@
+<%- include('../partials/header', { title: 'User Management' }) %>
+
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark">User Management</h2>
+                <p class="text-muted">View and manage all registered platform users</p>
+            </div>
+            <a href="/admin/dashboard" class="btn btn-light rounded-pill px-4"><i class="fas fa-arrow-left me-2"></i>
+                Back to Dashboard</a>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 py-3 text-uppercase small fw-bold text-muted">User</th>
+                            <th class="text-uppercase small fw-bold text-muted">Role</th>
+                            <th class="text-uppercase small fw-bold text-muted">Phone</th>
+                            <th class="text-uppercase small fw-bold text-muted">Joined</th>
+                            <th class="pe-4 text-end text-uppercase small fw-bold text-muted">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(userData=> { %>
+                            <tr>
+                                <td class="ps-4 py-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="https://ui-avatars.com/api/?name=<%= encodeURIComponent(userData.full_name || userData.email) %>&background=00A082&color=fff&bold=true"
+                                            class="rounded-circle" width="40" height="40">
+                                        <div>
+                                            <h6 class="fw-bold mb-0 text-dark">
+                                                <%= userData.full_name || 'Anonymous' %>
+                                            </h6>
+                                            <small class="text-muted">
+                                                <%= userData.email %>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-<%= 
+                                    userData.user_type === 'admin' ? 'danger' : 
+                                    (userData.user_type === 'seller' ? 'success' : 
+                                    (userData.user_type === 'rider' ? 'info' : 'primary')) 
+                                %> bg-opacity-10 text-<%= 
+                                    userData.user_type === 'admin' ? 'danger' : 
+                                    (userData.user_type === 'seller' ? 'success' : 
+                                    (userData.user_type === 'rider' ? 'info' : 'primary')) 
+                                %> rounded-pill px-3 py-1">
+                                        <%= userData.user_type.toUpperCase() %>
+                                    </span>
+                                </td>
+                                <td class="text-muted small">
+                                    <%= userData.phone || 'N/A' %>
+                                </td>
+                                <td class="text-muted small">
+                                    <%= new Date(userData.created_at).toLocaleDateString() %>
+                                </td>
+                                <td class="pe-4 text-end">
+                                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                        onclick="deleteUser('<%= userData.id %>')">
+                                        <i class="far fa-trash-alt me-1"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                            <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        async function deleteUser(userId) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "This user profile will be permanently removed!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/admin/user/${userId}`, {
+                        method: 'DELETE'
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        Swal.fire('Deleted!', data.message, 'success').then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Delete failed:', error);
+                }
+            }
+        }
+    </script>
+
+    <%- include('../partials/footer') %>

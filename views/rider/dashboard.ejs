@@ -1,0 +1,170 @@
+<%- include('../partials/header', { title: 'Rider Dashboard' }) %>
+
+    <style>
+        .rider-stat-card {
+            border: none;
+            border-radius: 20px;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .delivery-card {
+            border: none;
+            border-radius: 15px;
+            background: #f8f9fa;
+        }
+    </style>
+
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="fw-bold text-dark mb-0">Rider Panel</h1>
+                <p class="text-muted mb-0">Track your earnings and manage active deliveries</p>
+            </div>
+            <div class="text-end">
+                <button id="statusToggle" class="btn btn-outline-success rounded-pill px-3 py-2"
+                    onclick="toggleStatus()">
+                    <span class="status-indicator bg-success me-2"></span> <span id="statusText">ONLINE</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <div class="col-md-6">
+                <div class="card rider-stat-card shadow-sm">
+                    <div class="card-body p-4 text-center">
+                        <h6 class="text-muted mb-2 fw-bold text-uppercase smaller">Total Deliveries</h6>
+                        <h1 class="display-4 fw-bold mb-0 text-primary">
+                            <%= stats.total_deliveries || 0 %>
+                        </h1>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card rider-stat-card shadow-sm">
+                    <div class="card-body p-4 text-center">
+                        <h6 class="text-muted mb-2 fw-bold text-uppercase smaller">Estimated Earnings</h6>
+                        <h1 class="display-4 fw-bold mb-0 text-success">KSH <%= (stats.total_earnings ||
+                                0).toLocaleString() %>
+                        </h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0">Active Deliveries</h4>
+                    <a href="/rider/available-orders" class="btn btn-primary rounded-pill px-4">Find New Jobs</a>
+                </div>
+
+                <% if (activeDeliveries && activeDeliveries.length> 0) { %>
+                    <div class="row g-3">
+                        <% activeDeliveries.forEach(delivery=> { %>
+                            <div class="col-12">
+                                <div class="card delivery-card p-4">
+                                    <div class="d-flex justify-content-between align-items-start mb-3">
+                                        <div>
+                                            <span class="badge bg-primary rounded-pill mb-2">Order #<%=
+                                                    delivery.order_number %></span>
+                                            <h5 class="fw-bold mb-0 text-dark">
+                                                <%= delivery.store_name %>
+                                            </h5>
+                                            <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> Pickup:
+                                                <%= delivery.store_address %>
+                                            </small>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-white text-dark shadow-sm rounded-pill px-3 py-2">
+                                                <%= delivery.status.toUpperCase().replace(/_/g, ' ' ) %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="small">
+                                            <p class="mb-0"><strong>Customer:</strong>
+                                                <%= delivery.customer_name %>
+                                            </p>
+                                            <p class="mb-0"><strong>Destination:</strong>
+                                                <%= delivery.delivery_address %>
+                                            </p>
+                                        </div>
+                                        <a href="/customer/track/<%= delivery.order_id %>"
+                                            class="btn btn-dark btn-sm rounded-pill px-4">Track Live</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <% }) %>
+                    </div>
+                    <% } else { %>
+                        <div class="card border-0 shadow-sm rounded-4 text-center p-5">
+                            <div class="py-4">
+                                <i class="fas fa-motorcycle fa-4x text-muted opacity-25 mb-4"></i>
+                                <h4 class="fw-bold text-dark">No active deliveries</h4>
+                                <p class="text-muted mb-4">You are currently available for new delivery requests.</p>
+                                <a href="/rider/available-orders" class="btn btn-primary rounded-pill px-5">Browse
+                                    Available Jobs</a>
+                            </div>
+                        </div>
+                        <% } %>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                    <h5 class="fw-bold mb-4">Rider Quality Score</h5>
+                    <div class="text-center py-3">
+                        <div class="display-5 fw-bold text-warning mb-2">4.9</div>
+                        <div class="mb-3 text-warning">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="text-muted small">Based on your last 50 deliveries. Great job!</p>
+                    </div>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-dark text-white">
+                    <h6 class="fw-bold mb-3"><i class="fas fa-info-circle me-2 text-info"></i> Rider Tip</h6>
+                    <p class="small opacity-75 mb-0">Peak hours are starting in 30 minutes. Stay online to earn more!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleStatus() {
+            const btn = document.getElementById('statusToggle');
+            const text = document.getElementById('statusText');
+            const indicator = btn.querySelector('.status-indicator');
+
+            if (text.innerText === 'ONLINE') {
+                text.innerText = 'OFFLINE';
+                btn.classList.replace('btn-outline-success', 'btn-outline-secondary');
+                indicator.classList.replace('bg-success', 'bg-secondary');
+                if (typeof window.toggleRiderStatus === 'function') {
+                    window.toggleRiderStatus('offline');
+                }
+            } else {
+                text.innerText = 'ONLINE';
+                btn.classList.replace('btn-outline-secondary', 'btn-outline-success');
+                indicator.classList.replace('bg-secondary', 'bg-success');
+                if (typeof window.toggleRiderStatus === 'function') {
+                    window.toggleRiderStatus('online');
+                }
+            }
+        }
+    </script>
+    <%- include('../partials/rider-location') %>
+        <%- include('../partials/footer') %>

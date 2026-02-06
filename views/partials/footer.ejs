@@ -1,0 +1,83 @@
+</main>
+
+<footer class="bg-dark text-white text-center py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <h5>QuickDeliver</h5>
+                <p class="small text-muted">The best delivery platform in town.</p>
+            </div>
+            <div class="col-md-4 mb-3">
+                <h6>Quick Links</h6>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-white-50 text-decoration-none">About Us</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none">Contact</a></li>
+                    <li><a href="#" class="text-white-50 text-decoration-none">Terms & Conditions</a></li>
+                </ul>
+            </div>
+            <div class="col-md-4 mb-3">
+                <h6>Connect With Us</h6>
+                <div class="social-links">
+                    <a href="#" class="text-white me-2"><i class="fab fa-facebook"></i></a>
+                    <a href="#" class="text-white me-2"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white me-2"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+        <hr class="border-secondary">
+        <p class="small mb-0">&copy; <%= new Date().getFullYear() %> QuickDeliver. Developed by <strong>Derivo Tech
+                    Solutions</strong>. All rights reserved.</p>
+    </div>
+</footer>
+
+<!-- Socket.io -->
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Toast Notifications -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="liveToast" class="toast hide" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto" id="toast-title">Notification</strong>
+            <small id="toast-time">Just now</small>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body" id="toast-message">
+            Hello, world!
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global Socket.io initialization
+    const socket = io();
+    const userId = '<%= (typeof user !== "undefined" && user) ? user.id : "" %>';
+
+    socket.on('connect', () => {
+        console.log('Connected to socket server');
+        if (userId) {
+            socket.emit('join-user', userId);
+        }
+    });
+
+    // Handle global notifications
+    socket.on('notification', (data) => {
+        showToast(data.title, data.message);
+        updateNotificationCount();
+    });
+
+    function showToast(title, message) {
+        document.getElementById('toast-title').innerText = title;
+        document.getElementById('toast-message').innerText = message;
+        const toast = new bootstrap.Toast(document.getElementById('liveToast'));
+        toast.show();
+    }
+
+    function updateNotificationCount() {
+        // Function to update badge count via AJAX if needed
+    }
+</script>
+</body>
+
+</html>

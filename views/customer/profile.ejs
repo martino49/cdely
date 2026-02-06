@@ -1,0 +1,199 @@
+<%- include('../partials/header', { title: 'My Profile' }) %>
+
+    <div class="container mt-4 mb-5">
+        <div class="row">
+            <!-- Profile Info Column -->
+            <div class="col-lg-4">
+                <div class="card shadow-md border-0 rounded-4 overflow-hidden mb-4">
+                    <div class="card-header bg-primary py-5 text-center position-relative">
+                        <img src="<%= user.profile_picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.full_name || user.email) + '&size=128&background=fff&color=00A082&bold=true' %>"
+                            class="rounded-circle border border-4 border-white shadow-lg mx-auto"
+                            style="width: 120px; height: 120px; object-fit: cover; margin-top: 20px;">
+                    </div>
+                    <div class="card-body text-center pt-5">
+                        <h3 class="fw-bold mb-1">
+                            <%= user.full_name %>
+                        </h3>
+                        <p class="text-muted mb-3"><i class="fas fa-envelope me-2"></i>
+                            <%= user.email %>
+                        </p>
+                        <div class="d-flex justify-content-center gap-2 mb-4">
+                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3"><i
+                                    class="fas fa-shield-alt me-1"></i> Verified</span>
+                            <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3"><i
+                                    class="fas fa-star me-1"></i> Gold Member</span>
+                        </div>
+
+                        <div class="row g-2 border-top pt-4">
+                            <div class="col-4">
+                                <div class="p-2">
+                                    <h5 class="fw-bold mb-0 text-primary">
+                                        <%= stats.total_orders %>
+                                    </h5>
+                                    <small class="text-muted text-uppercase smaller fw-bold">Orders</small>
+                                </div>
+                            </div>
+                            <div class="col-4 border-start border-end">
+                                <div class="p-2">
+                                    <h5 class="fw-bold mb-0 text-primary">
+                                        <%= stats.loyalty_points %>
+                                    </h5>
+                                    <small class="text-muted text-uppercase smaller fw-bold">Points</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-2">
+                                    <h5 class="fw-bold mb-0 text-primary">KSH <%= stats.total_spent %>
+                                    </h5>
+                                    <small class="text-muted text-uppercase smaller fw-bold">Spent</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="list-group shadow-sm border-0 rounded-4 overflow-hidden">
+                    <a href="#personal-info" class="list-group-item list-group-item-action border-0 p-3 active">
+                        <i class="fas fa-user-circle me-3"></i> Personal Information
+                    </a>
+                    <a href="/customer/wallet" class="list-group-item list-group-item-action border-0 p-3">
+                        <i class="fas fa-wallet me-3"></i> My Wallet & Payments
+                    </a>
+                    <a href="/customer/addresses" class="list-group-item list-group-item-action border-0 p-3">
+                        <i class="fas fa-map-marker-alt me-3"></i> Address Book
+                    </a>
+                    <a href="/customer/favorites" class="list-group-item list-group-item-action border-0 p-3">
+                        <i class="fas fa-heart me-3"></i> Favorites
+                    </a>
+                    <a href="/security" class="list-group-item list-group-item-action border-0 p-3 text-danger">
+                        <i class="fas fa-lock me-3"></i> Security & Password
+                    </a>
+                </div>
+            </div>
+
+            <!-- Main Content Column -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 rounded-4 p-4 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="fw-bold m-0 text-dark">Personal Information</h4>
+                        <button class="btn btn-primary rounded-pill btn-sm px-4" onclick="enableEdit()">Edit
+                            Profile</button>
+                    </div>
+
+                    <form id="profileForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted">Full Name</label>
+                                <input type="text" class="form-control" value="<%= user.full_name %>" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted">Email Address</label>
+                                <input type="email" class="form-control" value="<%= user.email %>" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted">Phone Number</label>
+                                <input type="tel" class="form-control" value="<%= user.phone || '+254 ' %>" readonly>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label small fw-bold text-muted">Language</label>
+                                <select class="form-select" disabled>
+                                    <option>English (UK)</option>
+                                    <option>Swahili</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <h4 class="fw-bold mb-4 text-dark">Recent Activity</h4>
+                    <div class="activity-timeline">
+                        <% recentActivity.forEach(activity=> { %>
+                            <div class="d-flex gap-3 mb-4 last-no-margin">
+                                <div class="activity-icon bg-<%= activity.color %> bg-opacity-10 text-<%= activity.color %> rounded-3 d-flex align-items-center justify-content-center"
+                                    style="width: 45px; height: 45px; flex-shrink: 0;">
+                                    <i class="fas fa-<%= activity.icon %>"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between">
+                                        <h6 class="fw-bold mb-1">
+                                            <%= activity.title %>
+                                        </h6>
+                                        <small class="text-muted">
+                                            <%= activity.time %>
+                                        </small>
+                                    </div>
+                                    <p class="text-muted small mb-0">
+                                        <%= activity.description %>
+                                    </p>
+                                </div>
+                            </div>
+                            <% }) %>
+                    </div>
+                    <div class="text-center mt-3">
+                        <button class="btn btn-link text-primary text-decoration-none fw-bold">View More
+                            Activity</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .activity-timeline {
+            position: relative;
+        }
+
+        .last-no-margin:last-child {
+            margin-bottom: 0 !important;
+        }
+
+        .smaller {
+            font-size: 0.65rem;
+        }
+
+        .fw-500 {
+            font-weight: 500;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function enableEdit() {
+            document.querySelectorAll('#profileForm input, #profileForm select').forEach(el => el.removeAttribute('readonly'));
+            document.querySelector('#profileForm select').removeAttribute('disabled');
+
+            // Transform Edit button to Save button
+            const btn = event.target;
+            btn.innerText = 'Save Profile';
+            btn.classList.replace('btn-primary', 'btn-success');
+            btn.onclick = saveProfile;
+        }
+
+        async function saveProfile() {
+            const name = document.querySelector('input[type="text"]').value;
+            const email = document.querySelector('input[type="email"]').value;
+            const phone = document.querySelector('input[type="tel"]').value;
+
+            try {
+                const response = await fetch('/customer/profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ full_name: name, phone })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    Swal.fire('Updated!', data.message, 'success').then(() => {
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire('Error', data.message, 'error');
+                }
+            } catch (error) {
+                console.error('Update failed:', error);
+            }
+        }
+    </script>
+
+    <%- include('../partials/footer') %>

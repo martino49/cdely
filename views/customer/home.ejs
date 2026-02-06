@@ -1,0 +1,159 @@
+<%- include('../partials/header', { title: 'Dashboard' }) %>
+
+    <div class="container mt-4">
+        <!-- Hero Section -->
+        <div class="row align-items-center mb-5 py-5 banner-bg shadow-lg mx-0">
+            <div class="col-lg-7 ps-lg-5 position-relative" style="z-index: 2;">
+                <span class="badge bg-white text-primary mb-3 shadow-sm text-uppercase">🚀 Fast Delivery</span>
+                <h1 class="display-3 fw-bold mb-3 text-dark">Order Food &<br>Groceries in Minutes</h1>
+                <p class="lead mb-4 text-dark opacity-75">Your favorite restaurants and stores, delivered to your
+                    doorstep.</p>
+
+                <form action="/customer/stores" method="GET" class="card p-2 border-0 shadow-lg"
+                    style="max-width: 500px; border-radius: 15px;">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-0 ps-3"><i
+                                class="fas fa-search text-muted"></i></span>
+                        <input type="text" name="search" class="form-control border-0 shadow-none"
+                            placeholder="What are you craving today?">
+                        <button class="btn btn-primary px-4 rounded-pill m-1" type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-lg-5 text-center position-relative d-none d-lg-block" style="z-index: 2;">
+                <!-- Abstract 3D illustration placeholder -->
+                <img src="https://cdn-icons-png.flaticon.com/512/3081/3081559.png" alt="Delivery"
+                    class="img-fluid floating-animation"
+                    style="max-width: 80%; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15));">
+            </div>
+        </div>
+
+        <!-- Featured Products -->
+        <div class="d-flex justify-content-between align-items-center mb-4 mt-5">
+            <h3 class="fw-bold m-0 text-dark">Discover Great Deals</h3>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4 mb-5">
+            <% if (typeof products !=='undefined' && products.length> 0) { %>
+                <% products.forEach(product=> { %>
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm hover-card rounded-4 overflow-hidden">
+                            <div class="position-relative">
+                                <% let mainImage='https://via.placeholder.com/300' ; try { if (product.image_urls) { let
+                                    parsedInfo=product.image_urls; if (typeof parsedInfo==='string' &&
+                                    parsedInfo.trim().startsWith('[')) { parsedInfo=JSON.parse(parsedInfo); } if
+                                    (Array.isArray(parsedInfo) && parsedInfo.length> 0) {
+                                    mainImage = parsedInfo[0];
+                                    } else if (typeof parsedInfo === 'string') {
+                                    mainImage = parsedInfo;
+                                    }
+                                    }
+                                    } catch (e) {
+                                    console.error('Image parse error:', e);
+                                    }
+                                    %>
+                                    <img src="<%= mainImage %>" class="card-img-top" alt="<%= product.name %>"
+                                        style="height: 200px; object-fit: cover;">
+
+                                    <% if (product.discounted_price && product.price> product.discounted_price)
+                                        { %>
+                                        <div class="position-absolute top-0 start-0 m-2">
+                                            <span class="badge bg-danger rounded-pill shadow-sm">
+                                                -<%= Math.round(((product.price - product.discounted_price) /
+                                                    product.price) * 100) %>%
+                                            </span>
+                                        </div>
+                                        <% } %>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title fw-bold text-dark mb-1 text-truncate">
+                                    <%= product.name %>
+                                </h6>
+                                <p class="text-muted small mb-2 text-truncate">
+                                    <%= product.description %>
+                                </p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <% if (product.discounted_price && product.price>
+                                            product.discounted_price) { %>
+                                            <span class="fw-bold text-dark">KES <%=
+                                                    product.discounted_price.toLocaleString() %></span>
+                                            <small class="text-muted text-decoration-line-through ms-1">KES <%=
+                                                    product.price.toLocaleString() %></small>
+                                            <% } else { %>
+                                                <span class="fw-bold text-dark">KES <%= product.price.toLocaleString()
+                                                        %></span>
+                                                <% } %>
+                                    </div>
+                                    <a href="/customer/product/<%= product.id %>"
+                                        class="btn btn-sm btn-primary rounded-circle shadow-sm"
+                                        style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+                        <% } else { %>
+                            <div class="col-12 text-center py-5">
+                                <p class="text-muted">No products found to display.</p>
+                            </div>
+                            <% } %>
+        </div>
+
+        <!-- Featured Stores / Products -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold m-0 text-dark">Featured Stores</h3>
+            <a href="/customer/stores" class="btn btn-sm btn-outline-primary rounded-pill">Browse All</a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 row-cols-lg-5 g-4 mb-5">
+            <% if (typeof stores !=='undefined' && stores.length> 0) { %>
+                <% stores.forEach(store=> { %>
+                    <div class="col">
+                        <div class="card h-100 border-0 shadow-sm hover-card rounded-3">
+                            <div class="position-relative">
+                                <img src="<%= store.logo_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=500&q=80' %>"
+                                    class="card-img-top" alt="<%= store.name %>"
+                                    style="height: 180px; object-fit: cover;">
+                                <div class="position-absolute top-0 end-0 p-2">
+                                    <button class="btn btn-light btn-sm rounded-circle shadow-sm text-danger"><i
+                                            class="far fa-heart"></i></button>
+                                </div>
+                                <div
+                                    class="position-absolute bottom-0 start-0 p-2 w-100 bg-white bg-opacity-90 backdrop-blur-sm">
+                                    <span class="badge bg-white text-dark shadow-sm"><i
+                                            class="fas fa-clock text-warning"></i> 20-30 min</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title fw-bold text-truncate mb-1">
+                                    <%= store.name %>
+                                </h6>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <small class="text-muted"><i class="fas fa-utensils me-1"></i>
+                                        <%= store.category %>
+                                    </small>
+                                    <small class="text-warning fw-bold"><i class="fas fa-star"></i> 4.8</small>
+                                </div>
+                                <div class="d-grid mt-2">
+                                    <a href="/customer/store/<%= store.id %>"
+                                        class="btn btn-sm btn-light text-primary fw-bold rounded-pill">View
+                                        Store</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+                        <% } else { %>
+                            <div class="col-12 text-center py-5">
+                                <p class="text-muted">Loading best stores near you...</p>
+                            </div>
+                            <% } %>
+        </div>
+
+
+    </div>
+
+    <%- include('../partials/footer') %>

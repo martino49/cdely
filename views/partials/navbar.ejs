@@ -1,0 +1,145 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top shadow-sm">
+    <div class="container">
+        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="/">
+            <div class="bg-white p-1 rounded-circle"
+                style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-bolt text-primary small"></i>
+            </div>
+            QuickDeliver
+        </a>
+
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Left Side - Role Based Nav -->
+            <ul class="navbar-nav me-auto">
+                <% if(user) { %>
+                    <% if(user.user_type==='customer' ) { %>
+                        <li class="nav-item"><a class="nav-link" href="/customer/dashboard">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/customer/stores">Stores</a></li>
+                        <li class="nav-item"><a class="nav-link" href="/customer/orders">My Orders</a></li>
+                        <% } else if(user.user_type==='seller' ) { %>
+                            <li class="nav-item"><a class="nav-link" href="/seller/dashboard">Dashboard</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/seller/orders">Orders</a></li>
+                            <li class="nav-item"><a class="nav-link" href="/seller/products">Products</a></li>
+                            <% } else if(user.user_type==='rider' ) { %>
+                                <li class="nav-item"><a class="nav-link" href="/rider/dashboard">Dashboard</a></li>
+                                <li class="nav-item"><a class="nav-link" href="/rider/available-orders">Jobs</a></li>
+                                <% } else if(user.user_type==='admin' ) { %>
+                                    <li class="nav-item"><a class="nav-link" href="/admin/dashboard">Admin Panel</a>
+                                    </li>
+                                    <% } %>
+                                        <% } %>
+            </ul>
+
+            <!-- Right Side -->
+            <ul class="navbar-nav align-items-center gap-2">
+                <% if(user) { %>
+                    <!-- Cart (Customer Only) -->
+                    <% if(user.user_type==='customer' ) { %>
+                        <li class="nav-item">
+                            <a class="nav-link position-relative px-3" href="/customer/cart">
+                                <i class="fas fa-shopping-basket fs-5"></i>
+                                <span
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow-sm mt-1 ms--1"
+                                    id="navCartCount">
+                                    <%= cartCount || 0 %>
+                                </span>
+                            </a>
+                        </li>
+                        <% } %>
+
+                            <!-- Notifications -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link px-3" href="#" data-bs-toggle="dropdown">
+                                    <i class="fas fa-bell fs-5"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 p-0"
+                                    style="width: 320px;">
+                                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0 fw-bold">Notifications</h6>
+                                        <small class="text-primary cursor-pointer">Mark all as read</small>
+                                    </div>
+                                    <div class="notification-list" style="max-height: 300px; overflow-y: auto;">
+                                        <div class="p-3 text-center text-muted">
+                                            <small>No new notifications</small>
+                                        </div>
+                                    </div>
+                                    <div class="p-2 border-top text-center">
+                                        <a href="#" class="small text-decoration-none">View All Notifications</a>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <!-- User Profile -->
+                            <li class="nav-item dropdown ms-lg-2">
+                                <a class="nav-link p-0 d-flex align-items-center gap-2" href="#"
+                                    data-bs-toggle="dropdown">
+                                    <div class="avatar-sm">
+                                        <img src="<%= user.profile_picture || 'https://ui-avatars.com/api/?name=' + user.full_name + '&background=random' %>"
+                                            class="rounded-circle border border-2 border-white"
+                                            style="width: 38px; height: 38px; object-fit: cover;">
+                                    </div>
+                                    <div class="d-none d-lg-block text-start">
+                                        <p class="mb-0 small fw-bold text-white line-height-1">
+                                            <%= user.full_name %>
+                                        </p>
+                                        <small class="text-white-50 text-uppercase" style="font-size: 10px;">
+                                            <%= user.user_type %>
+                                        </small>
+                                    </div>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2">
+                                    <li><a class="dropdown-item py-2" href="/<%= user.user_type %>/profile"><i
+                                                class="fas fa-user-circle me-3 opacity-50"></i>My Profile</a></li>
+                                    <% if(user.user_type==='customer' ) { %>
+                                        <li><a class="dropdown-item py-2" href="/customer/wallet"><i
+                                                    class="fas fa-wallet me-3 opacity-50"></i>Wallet</a></li>
+                                        <% } %>
+                                            <li>
+                                                <hr class="dropdown-divider">
+                                            </li>
+                                            <li><a class="dropdown-item py-2 text-danger" href="/auth/logout"><i
+                                                        class="fas fa-sign-out-alt me-3 opacity-50"></i>Logout</a></li>
+                                </ul>
+                            </li>
+                            <% } else { %>
+                                <li class="nav-item">
+                                    <a class="btn btn-outline-light rounded-pill px-4 me-2" href="/auth/login">Login</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="btn btn-light text-primary rounded-pill px-4 fw-bold"
+                                        href="/auth/register">Sign Up</a>
+                                </li>
+                                <% } %>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<style>
+    .line-height-1 {
+        line-height: 1.2;
+    }
+
+    .nav-link {
+        font-weight: 500;
+        font-size: 0.95rem;
+    }
+
+    .dropdown-item {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .dropdown-item:active {
+        background-color: var(--bs-primary);
+    }
+
+    .avatar-sm:hover {
+        opacity: 0.9;
+    }
+</style>

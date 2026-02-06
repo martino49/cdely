@@ -1,0 +1,102 @@
+<%- include('../partials/header', { title: 'Store Approvals' }) %>
+
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark">Store Approvals</h2>
+                <p class="text-muted">Review and approve new store applications</p>
+            </div>
+            <a href="/admin/dashboard" class="btn btn-light rounded-pill px-4"><i class="fas fa-arrow-left me-2"></i>
+                Back to Dashboard</a>
+        </div>
+
+        <% if (stores && stores.length> 0) { %>
+            <div class="row g-4">
+                <% stores.forEach(store=> { %>
+                    <div class="col-md-6 mb-4">
+                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                            <div class="row g-0 h-100">
+                                <div class="col-4">
+                                    <img src="<%= store.logo_url || 'https://via.placeholder.com/200' %>"
+                                        class="img-fluid h-100 object-fit-cover" alt="<%= store.name %>">
+                                </div>
+                                <div class="col-8">
+                                    <div class="card-body p-4 d-flex flex-column h-100">
+                                        <div class="mb-3">
+                                            <h5 class="fw-bold mb-1 text-dark">
+                                                <%= store.name %>
+                                            </h5>
+                                            <span
+                                                class="badge bg-primary bg-opacity-10 text-primary small rounded-pill px-2">
+                                                <%= store.category.toUpperCase() %>
+                                            </span>
+                                        </div>
+                                        <div class="mb-3">
+                                            <p class="small text-muted mb-1"><i class="fas fa-user me-1"></i> Owner: <%=
+                                                    store.seller_name %>
+                                            </p>
+                                            <p class="small text-muted mb-0"><i class="fas fa-map-marker-alt me-1"></i>
+                                                <%= store.address %>
+                                            </p>
+                                        </div>
+                                        <div class="mt-auto pt-3 d-flex gap-2">
+                                            <button class="btn btn-success rounded-pill px-4 w-100"
+                                                onclick="handleStore('<%= store.id %>', 'approve')">Approve</button>
+                                            <button class="btn btn-outline-danger rounded-pill px-4 w-100"
+                                                onclick="handleStore('<%= store.id %>', 'reject')">Reject</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+            </div>
+            <% } else { %>
+                <div class="card border-0 shadow-sm rounded-4 text-center p-5">
+                    <div class="py-5">
+                        <div class="bg-light d-inline-block p-4 rounded-circle mb-4">
+                            <i class="fas fa-clipboard-check fa-4x text-muted opacity-25"></i>
+                        </div>
+                        <h3 class="fw-bold text-dark">No pending approvals</h3>
+                        <p class="text-muted mb-0">All store applications have been processed.</p>
+                    </div>
+                </div>
+                <% } %>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        async function handleStore(storeId, action) {
+            const result = await Swal.fire({
+                title: action === 'approve' ? 'Approve Store?' : 'Reject Application?',
+                text: `Are you sure you want to ${action} this store?`,
+                icon: action === 'approve' ? 'question' : 'warning',
+                showCancelButton: true,
+                confirmButtonColor: action === 'approve' ? '#2ed573' : '#ff4757',
+                confirmButtonText: action === 'approve' ? 'Yes, Approve' : 'Yes, Reject'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch('/admin/store/approve', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ storeId, action })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        Swal.fire('Success!', data.message, 'success').then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Action failed:', error);
+                }
+            }
+        }
+    </script>
+
+    <%- include('../partials/footer') %>

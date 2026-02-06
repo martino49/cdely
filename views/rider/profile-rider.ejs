@@ -1,0 +1,132 @@
+<%- include('../partials/header', { title: 'Rider Profile' }) %>
+
+    <div class="container mt-4 mb-5">
+        <div class="row g-4">
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                    <div class="position-relative d-inline-block mx-auto mb-4">
+                        <img src="<%= user.profile_picture || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.full_name) + '&background=4361ee&color=fff' %>"
+                            class="rounded-circle shadow-sm border border-4 border-white" width="120" height="120"
+                            style="object-fit: cover;">
+                        <button
+                            class="btn btn-primary btn-sm rounded-circle position-absolute bottom-0 end-0 p-2 shadow">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-1">
+                        <%= user.full_name %>
+                    </h4>
+                    <p class="text-muted small mb-3"><i class="fas fa-motorcycle me-1 text-primary"></i> Professional
+                        Rider</p>
+
+                    <div class="d-flex justify-content-center gap-2 mb-4">
+                        <div class="bg-light px-3 py-2 rounded-3 text-center flex-grow-1">
+                            <small class="text-muted d-block">Rating</small>
+                            <span class="fw-bold text-warning"><i class="fas fa-star x-small"></i>
+                                <%= rider.rating || '4.8' %>
+                            </span>
+                        </div>
+                        <div class="bg-light px-3 py-2 rounded-3 text-center flex-grow-1">
+                            <small class="text-muted d-block">Jobs</small>
+                            <span class="fw-bold text-dark">
+                                <%= rider.total_deliveries || 0 %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="d-grid">
+                        <button class="btn btn-outline-danger rounded-pill fw-bold">Go Offline</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                    <h5 class="fw-bold mb-4">Vehicle Details</h5>
+                    <form>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">Vehicle Type</label>
+                                <select class="form-select rounded-3 py-2" disabled>
+                                    <option value="motorcycle" <%=rider.vehicle_type==='motorcycle' ? 'selected' : '' %>
+                                        >Motorcycle</option>
+                                    <option value="bicycle" <%=rider.vehicle_type==='bicycle' ? 'selected' : '' %>
+                                        >Bicycle</option>
+                                    <option value="car" <%=rider.vehicle_type==='car' ? 'selected' : '' %>>Car</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold text-muted">License Plate</label>
+                                <input type="text" class="form-control rounded-3 py-2"
+                                    value="<%= rider.vehicle_number || 'KDA 123X' %>" readonly>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h5 class="fw-bold mb-4">Compliance Documents</h5>
+                    <div class="d-grid gap-3">
+                        <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-white p-3 rounded-circle text-primary">
+                                    <i class="fas fa-address-card"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Driving License</h6>
+                                    <p class="text-muted small mb-0">Verified on Jan 20, 2026</p>
+                                </div>
+                            </div>
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">Active</span>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-white p-3 rounded-circle text-primary">
+                                    <i class="fas fa-file-contract"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0">Insurance Policy</h6>
+                                    <p class="text-muted small mb-0">Expires in 15 days</p>
+                                </div>
+                            </div>
+                            <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3">Renewal
+                                Due</span>
+                        </div>
+
+                        <div
+                            class="d-flex align-items-center justify-content-between p-3 bg-light rounded-4 border-dashed">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-white p-3 rounded-circle text-muted">
+                                    <i class="fas fa-plus"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0 text-muted">Upload New Document</h6>
+                                    <p class="text-muted small mb-0">ID Card, Certificate of Good Conduct</p>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm btn-primary rounded-pill px-3">Upload</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .border-dashed {
+            border: 2px dashed #dee2e6 !important;
+        }
+
+        .x-small {
+            font-size: 0.8rem;
+        }
+
+        .fw-bold {
+            font-weight: 700;
+        }
+    </style>
+
+    <%- include('../partials/footer') %>

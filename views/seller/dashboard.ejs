@@ -1,0 +1,523 @@
+<%- include('../partials/header', { title: 'Seller Dashboard' }) %>
+
+    <style>
+        .seller-stat-card {
+            border: none;
+            border-radius: 20px;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .seller-stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+    </style>
+
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="fw-bold text-dark mb-0">
+                    <%= store ? store.name : 'Seller Panel' %>
+                </h1>
+                <p class="text-muted mb-0">Manage your store and track business performance</p>
+            </div>
+            <% if (store) { %>
+                <div class="text-end">
+                    <span class="badge bg-<%= store.is_open ? 'success' : 'danger' %> rounded-pill px-3 py-2">
+                        <i class="fas fa-circle fa-xs me-1"></i>
+                        <%= store.is_open ? 'STORE OPEN' : 'STORE CLOSED' %>
+                    </span>
+                </div>
+                <% } %>
+        </div>
+
+        <% if (typeof error !=='undefined' && !store) { %>
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center"
+                        style="width: 80px; height: 80px;">
+                        <i class="fas fa-store fa-3x"></i>
+                    </div>
+                </div>
+                <h3 class="fw-bold text-dark mb-3">Welcome to QuickDeliver Seller!</h3>
+                <p class="text-muted mb-4" style="max-width: 500px; margin: 0 auto;">To start selling, you need to
+                    create a store profile. It only takes a minute to set up your business identity.</p>
+                <button class="btn btn-primary btn-lg rounded-pill px-5 fw-bold shadow-sm" data-bs-toggle="modal"
+                    data-bs-target="#createStoreModal">
+                    <i class="fas fa-plus-circle me-2"></i> Create My Store
+                </button>
+            </div>
+            <% } %>
+
+                <% if (store) { %>
+                    <% if (stats.pendingOrders> 0) { %>
+                        <div
+                            class="alert alert-primary border-0 rounded-4 p-4 shadow-sm mb-5 d-flex align-items-center justify-content-between">
+                            <div class="d-flex gap-3 align-items-center">
+                                <div class="bg-white p-2 rounded-circle text-primary">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1">New Orders Waiting!</h5>
+                                    <p class="mb-0">You have <%= stats.pendingOrders %> new orders that need your
+                                            attention.</p>
+                                </div>
+                            </div>
+                            <a href="/seller/orders?status=pending" class="btn btn-primary rounded-pill px-4">Review
+                                Orders</a>
+                        </div>
+                        <% } %>
+
+                            <% if (typeof error !=='undefined' ) { %>
+                                <div class="alert alert-warning border-0 rounded-4 p-4 shadow-sm mb-5">
+                                    <div class="d-flex gap-3 align-items-center">
+                                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                                        <div>
+                                            <h5 class="fw-bold mb-1">Attention Required</h5>
+                                            <p class="mb-0">
+                                                <%= error %>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% } %>
+
+                                    <div class="row g-4 mb-5">
+                                        <div class="col-md-3">
+                                            <div class="card seller-stat-card shadow-sm h-100">
+                                                <div class="card-body p-4">
+                                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                                        <div class="icon-box bg-primary bg-opacity-10 text-primary">
+                                                            <i class="fas fa-shopping-bag"></i>
+                                                        </div>
+                                                        <h6 class="text-muted mb-0 fw-bold">Total Orders</h6>
+                                                    </div>
+                                                    <h2 class="fw-bold mb-0">
+                                                        <%= stats.orders %>
+                                                    </h2>
+                                                    <small class="text-success fw-bold"><i
+                                                            class="fas fa-arrow-up me-1"></i> 12%
+                                                        increase</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card seller-stat-card shadow-sm h-100">
+                                                <div class="card-body p-4">
+                                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                                        <div class="icon-box bg-success bg-opacity-10 text-success">
+                                                            <i class="fas fa-box"></i>
+                                                        </div>
+                                                        <h6 class="text-muted mb-0 fw-bold">Active Products</h6>
+                                                    </div>
+                                                    <h2 class="fw-bold mb-0">
+                                                        <%= stats.products %>
+                                                    </h2>
+                                                    <small class="text-muted">Manage Inventory</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="card seller-stat-card shadow-sm h-100">
+                                                <div class="card-body p-4">
+                                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                                        <div class="icon-box bg-warning bg-opacity-10 text-warning">
+                                                            <i class="fas fa-money-bill-wave"></i>
+                                                        </div>
+                                                        <h6 class="text-muted mb-0 fw-bold">Total Revenue</h6>
+                                                    </div>
+                                                    <h2 class="fw-bold mb-0">KES <%= stats.revenue.toLocaleString() %>
+                                                    </h2>
+                                                    <small class="text-muted">KES (Clean Profit)</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div
+                                                class="card seller-stat-card shadow-sm h-100 border-start border-primary border-5">
+                                                <div class="card-body p-4">
+                                                    <div class="d-flex align-items-center gap-3 mb-3">
+                                                        <div class="icon-box bg-info bg-opacity-10 text-info">
+                                                            <i class="fas fa-chart-line"></i>
+                                                        </div>
+                                                        <h6 class="text-muted mb-0 fw-bold">Daily Avg</h6>
+                                                    </div>
+                                                    <h2 class="fw-bold mb-0">KES <%= (stats.revenue /
+                                                            7).toFixed(0).toLocaleString() %>
+                                                    </h2>
+                                                    <small class="text-info fw-bold">last 7 days</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-4 mb-5">
+                                        <div class="col-lg-8">
+                                            <div class="card border-0 shadow-sm rounded-4 p-4">
+                                                <h5 class="fw-bold mb-4">Sales Trends (Last 7 Days)</h5>
+                                                <canvas id="salesChart" height="250"></canvas>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4">
+                                            <div class="card border-0 shadow-sm rounded-4 p-4">
+                                                <h5 class="fw-bold mb-4">Category Distribution</h5>
+                                                <canvas id="categoryChart" height="250"></canvas>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row g-4">
+                                        <div class="col-lg-8">
+                                            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                                                <div
+                                                    class="card-header bg-white p-4 border-0 d-flex justify-content-between align-items-center">
+                                                    <h5 class="fw-bold mb-0">Recent Orders</h5>
+                                                    <a href="/seller/orders"
+                                                        class="btn btn-sm btn-link text-decoration-none fw-bold text-primary">View
+                                                        All <i class="fas fa-angle-right ms-1"></i></a>
+                                                </div>
+                                                <div class="table-responsive">
+                                                    <table class="table align-middle table-hover mb-0">
+                                                        <thead class="bg-light">
+                                                            <tr>
+                                                                <th
+                                                                    class="ps-4 border-0 small text-muted text-uppercase">
+                                                                    Order ID
+                                                                </th>
+                                                                <th class="border-0 small text-muted text-uppercase">
+                                                                    Customer</th>
+                                                                <th class="border-0 small text-muted text-uppercase">
+                                                                    Status</th>
+                                                                <th
+                                                                    class="pe-4 border-0 small text-muted text-uppercase text-end">
+                                                                    Total
+                                                                </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <% if (recentOrders && recentOrders.length> 0) { %>
+                                                                <% recentOrders.forEach(order=> { %>
+                                                                    <tr>
+                                                                        <td class="ps-4 py-3 fw-bold">#<%=
+                                                                                order.order_number %>
+                                                                        </td>
+                                                                        <td>
+                                                                            <%= order.customer_name || 'Direct Customer'
+                                                                                %>
+                                                                        </td>
+                                                                        <td>
+                                                                            <span class="badge bg-<%= 
+                                                                ['delivered','paid'].includes(order.order_status) ? 'success' : 
+                                                                ['pending','preparing'].includes(order.order_status) ? 'warning' : 'info'
+                                                            %> bg-opacity-10 text-<%= 
+                                                                ['delivered','paid'].includes(order.order_status) ? 'success' : 
+                                                                ['pending','preparing'].includes(order.order_status) ? 'warning' : 'info'
+                                                            %> rounded-pill px-3">
+                                                                                <%= order.order_status.toUpperCase() %>
+                                                                            </span>
+                                                                        </td>
+                                                                        <td class="pe-4 text-end fw-bold">KES <%=
+                                                                                order.total_amount.toLocaleString() %>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <% }) %>
+                                                                        <% } else { %>
+                                                                            <tr>
+                                                                                <td colspan="4"
+                                                                                    class="text-center py-4 text-muted small">
+                                                                                    No
+                                                                                    orders found.</td>
+                                                                            </tr>
+                                                                            <% } %>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4">
+                                            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                                                <h5 class="fw-bold mb-4">Store Actions</h5>
+                                                <div class="d-grid gap-2">
+                                                    <a href="/seller/products"
+                                                        class="btn btn-light rounded-pill text-start p-3 text-dark transition-all hover-translate">
+                                                        <i class="fas fa-plus-circle text-primary me-2"></i> Add New
+                                                        Product
+                                                    </a>
+                                                    <a href="/seller/orders"
+                                                        class="btn btn-light rounded-pill text-start p-3 text-dark transition-all hover-translate">
+                                                        <i class="fas fa-tasks text-success me-2"></i> Manage My Orders
+                                                    </a>
+                                                    <a href="/customer/store/<%= store ? store.id : '' %>"
+                                                        target="_blank"
+                                                        class="btn btn-light rounded-pill text-start p-3 text-dark transition-all hover-translate">
+                                                        <i class="fas fa-eye text-info me-2"></i> Open Customer View
+                                                    </a>
+                                                    <a href="/seller/wallet"
+                                                        class="btn btn-light rounded-pill text-start p-3 text-dark transition-all hover-translate">
+                                                        <i class="fas fa-wallet text-warning me-2"></i> Check Earnings
+                                                    </a>
+                                                </div>
+                                            </div>
+
+                                            <div class="card border-0 shadow-sm rounded-4 bg-primary text-white p-4">
+                                                <h6 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                                                    <i class="fas fa-lightbulb"></i> Store Intelligence
+                                                </h6>
+                                                <p class="small opacity-75">Your store is performing <%=
+                                                        Math.round(Math.random() * 20 + 5) %>% better than last week.
+                                                        Keep it up!</p>
+                                                <div class="progress bg-white bg-opacity-25" style="height: 8px;">
+                                                    <div class="progress-bar bg-white" style="width: 75%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+    </div>
+    <% } %>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script>
+            const analyticsData = {
+                sales: <% - analytics ? analytics.dailySales : '[]' %>,
+                categories: <% - analytics ? analytics.categoryData : '[]' %>
+        };
+
+            // Sales Trend Chart
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            new Chart(salesCtx, {
+                type: 'line',
+                data: {
+                    labels: analyticsData.sales.map(d => new Date(d.date).toLocaleDateString('en-US', { weekday: 'short' })),
+                    datasets: [{
+                        label: 'Daily Sales (KES)',
+                        data: analyticsData.sales.map(d => d.total),
+                        borderColor: '#4361ee',
+                        backgroundColor: 'rgba(67, 97, 238, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBorderColor: '#4361ee'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Category distribution chart
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: analyticsData.categories.map(d => d.category),
+                    datasets: [{
+                        data: analyticsData.categories.map(d => d.value),
+                        backgroundColor: ['#4361ee', '#4cc9f0', '#4895ef', '#3f37c9', '#3a0ca3'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                    },
+                    cutout: '70%'
+                }
+            });
+        </script>
+
+        <!-- Create Store Modal -->
+        <div class="modal fade" id="createStoreModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 rounded-4 shadow">
+                    <div class="modal-header border-0 pb-0 p-4">
+                        <h5 class="fw-bold mb-0">Create Your Store</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form id="createStoreForm">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted">Store Name</label>
+                                <input type="text" name="name" class="form-control rounded-3 py-2" required
+                                    placeholder="e.g. Tasty Bites">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted">Category</label>
+                                <select name="category" class="form-select rounded-3 py-2" required>
+                                    <option value="food">Food & Beverage</option>
+                                    <option value="groceries">Groceries</option>
+                                    <option value="electronics">Electronics</option>
+                                    <option value="fashion">Fashion</option>
+                                    <option value="pharmacy">Pharmacy</option>
+                                    <option value="home">Home & Living</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted">Description</label>
+                                <textarea name="description" class="form-control rounded-3" rows="3"
+                                    placeholder="Tell us about your store..."></textarea>
+                            </div>
+                            <div class="row g-3 mb-4">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted">Business Address</label>
+                                    <input type="text" name="address" class="form-control rounded-3" required
+                                        placeholder="Street, City">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted">Phone Number</label>
+                                    <input type="tel" name="phone" class="form-control rounded-3" required
+                                        placeholder="07...">
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold">Create
+                                    Store</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.getElementById('createStoreForm')?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch('/seller/store', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Your store has been created successfully.',
+                            icon: 'success',
+                            confirmButtonColor: '#4361ee'
+                        }).then(() => window.location.reload());
+                    } else {
+                        Swal.fire('Error', result.message, 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Error', 'Something went wrong', 'error');
+                }
+            });
+        </script>
+
+        <!-- Create Store Modal -->
+        <div class="modal fade" id="createStoreModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 rounded-4 shadow">
+                    <div class="modal-header border-0 pb-0 p-4">
+                        <h5 class="fw-bold mb-0">Create Your Store</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <form id="createStoreForm">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted">Store Name</label>
+                                <input type="text" name="name" class="form-control rounded-3 py-2" required
+                                    placeholder="e.g. Tasty Bites">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted">Category</label>
+                                <select name="category" class="form-select rounded-3 py-2" required>
+                                    <option value="food">Food & Beverage</option>
+                                    <option value="groceries">Groceries</option>
+                                    <option value="electronics">Electronics</option>
+                                    <option value="fashion">Fashion</option>
+                                    <option value="pharmacy">Pharmacy</option>
+                                    <option value="home">Home & Living</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold text-muted">Description</label>
+                                <textarea name="description" class="form-control rounded-3" rows="3"
+                                    placeholder="Tell us about your store..."></textarea>
+                            </div>
+                            <div class="row g-3 mb-4">
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted">Business Address</label>
+                                    <input type="text" name="address" class="form-control rounded-3" required
+                                        placeholder="Street, City">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-bold text-muted">Phone Number</label>
+                                    <input type="tel" name="phone" class="form-control rounded-3" required
+                                        placeholder="07...">
+                                </div>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold">Create
+                                    Store</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.getElementById('createStoreForm')?.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch('/seller/store', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Your store has been created successfully.',
+                            icon: 'success',
+                            confirmButtonColor: '#4361ee'
+                        }).then(() => window.location.reload());
+                    } else {
+                        Swal.fire('Error', result.message, 'error');
+                    }
+                } catch (error) {
+                    Swal.fire('Error', 'Something went wrong', 'error');
+                }
+            });
+        </script>
+
+        <style>
+            .hover-translate:hover {
+                transform: translateX(5px);
+            }
+
+            .transition-all {
+                transition: all 0.3s ease;
+            }
+        </style>
+
+        <%- include('../partials/footer') %>

@@ -1,0 +1,388 @@
+<%- include('../partials/header', { title: 'Order Details' }) %>
+
+    <div class="container mt-4 mb-5">
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center mb-4 gap-3">
+                    <a href="/customer/orders" class="btn btn-light btn-sm rounded-circle"><i
+                            class="fas fa-arrow-left"></i></a>
+                    <div>
+                        <h2 class="fw-bold m-0 text-dark">Order #<%= order.order_number %>
+                        </h2>
+                        <p class="text-muted small mb-0">Placed on <%= new Date(order.created_at).toLocaleString() %>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Items -->
+                <div class="card shadow-sm border-0 rounded-4 overflow-hidden mb-4">
+                    <div class="card-header bg-white p-4 border-0">
+                        <h5 class="fw-bold mb-0">Market Items</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table align-middle mb-0">
+                                <tbody>
+                                    <% items.forEach(item=> { %>
+                                        <tr>
+                                            <td class="ps-4 py-3">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <% let imageUrl='https://via.placeholder.com/60' ; if
+                                                        (item.image_urls) { try { // Check if it looks like a JSON array
+                                                        if (item.image_urls.trim().startsWith('[')) { const
+                                                        parsed=JSON.parse(item.image_urls); if (Array.isArray(parsed) &&
+                                                        parsed.length> 0) {
+                                                        imageUrl = parsed[0];
+                                                        }
+                                                        } else {
+                                                        // Treat as plain string URL
+                                                        imageUrl = item.image_urls;
+                                                        }
+                                                        } catch (e) {
+                                                        // Fallback if parsing fails but string exists
+                                                        if (typeof item.image_urls === 'string') {
+                                                        imageUrl = item.image_urls;
+                                                        }
+                                                        }
+                                                        }
+                                                        %>
+                                                        <img src="<%= imageUrl %>" class="rounded-3 shadow-sm"
+                                                            style="width: 50px; height: 50px; object-fit: cover;">
+                                                        <div>
+                                                            <h6 class="fw-bold mb-0 text-dark">
+                                                                <%= item.product_name %>
+                                                            </h6>
+                                                            <small class="text-muted">
+                                                                <%= item.special_instructions || 'No instructions' %>
+                                                            </small>
+                                                        </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-light text-dark rounded-pill px-3">Qty: <%=
+                                                        item.quantity %></span>
+                                            </td>
+                                            <td class="pe-4 text-end fw-bold text-dark">
+                                                <%= (item.quantity * item.unit_price).toLocaleString() %> KES
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Delivery Info -->
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <h5 class="fw-bold mb-4">Delivery Information</h5>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="d-flex gap-3">
+                                <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle"
+                                    style="width: 50px; height: 50px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark">Delivery Address</h6>
+                                    <p class="text-muted small mb-0">
+                                        <%= order.delivery_address %>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex gap-3">
+                                <div class="bg-info bg-opacity-10 text-info p-3 rounded-circle"
+                                    style="width: 50px; height: 50px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-truck"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark">Delivery Service</h6>
+                                    <p class="text-muted small mb-0">Standard Delivery (Kenya Post)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="col-lg-4">
+                <div class="card shadow-lg border-0 rounded-4 p-4 sticky-top" style="top: 100px;">
+                    <h5 class="fw-bold mb-4">Order Summary</h5>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal</span>
+                        <span class="fw-bold text-dark">
+                            <%= order.subtotal.toLocaleString() %> KES
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Delivery Fee</span>
+                        <span class="fw-bold text-success">
+                            <%= order.delivery_fee.toLocaleString() %> KES
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="text-muted">Platform Fee</span>
+                        <span class="fw-bold text-dark">
+                            <%= order.platform_fee.toLocaleString() %> KES
+                        </span>
+                    </div>
+
+                    <hr class="mb-4">
+
+                    <div class="d-flex justify-content-between mb-4">
+                        <h5 class="fw-bold text-dark">Grand Total</h5>
+                        <h5 class="fw-bold text-primary display-6">
+                            <%= order.total_amount.toLocaleString() %> KES
+                        </h5>
+                    </div>
+
+                    <div class="bg-light p-3 rounded-3 mb-4">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small class="text-muted">Payment Method</small>
+                            <small class="fw-bold text-dark text-uppercase">
+                                <%= order.payment_method %>
+                            </small>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <small class="text-muted">Status</small>
+                            <small
+                                class="badge bg-<%= order.order_status === 'delivered' ? 'success' : 'primary' %> bg-opacity-10 text-<%= order.order_status === 'delivered' ? 'success' : 'primary' %> rounded-pill px-2">
+                                <%= order.order_status.toUpperCase() %>
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <% if (['pending', 'preparing' , 'ready_for_pickup' , 'on_the_way'
+                            ].includes(order.order_status)) { %>
+                            <a href="/customer/track/<%= order.id %>" class="btn btn-primary btn-lg rounded-pill py-3">
+                                <i class="fas fa-map-marked-alt me-2"></i> Track Live
+                            </a>
+                            <% } else if (order.order_status==='delivered' ) { %>
+                                <button class="btn btn-success btn-lg rounded-pill py-3" data-bs-toggle="modal"
+                                    data-bs-target="#reviewModal">
+                                    <i class="fas fa-star me-2"></i> Rate Experience
+                                </button>
+                                <button class="btn btn-outline-primary rounded-pill py-2">
+                                    <i class="fas fa-redo me-2"></i> Order Again
+                                </button>
+                                <% } else { %>
+                                    <button class="btn btn-outline-primary btn-lg rounded-pill py-3">
+                                        <i class="fas fa-redo me-2"></i> Re-order Items
+                                    </button>
+                                    <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Review Modal -->
+    <div class="modal fade" id="reviewModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Rate your Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="reviewForm">
+                        <input type="hidden" name="order_id" value="<%= order.id %>">
+                        <input type="hidden" name="store_id" value="<%= order.store_id %>">
+                        <input type="hidden" name="rider_id" value="<%= order.rider_id %>">
+
+                        <!-- Store Rating -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold mb-1">Store: <%= order.store_name %></label>
+                            <div class="star-rating fs-3 text-warning">
+                                <i class="far fa-star cursor-pointer" data-rating="1"
+                                    onclick="setRating(this, 'store')"></i>
+                                <i class="far fa-star cursor-pointer" data-rating="2"
+                                    onclick="setRating(this, 'store')"></i>
+                                <i class="far fa-star cursor-pointer" data-rating="3"
+                                    onclick="setRating(this, 'store')"></i>
+                                <i class="far fa-star cursor-pointer" data-rating="4"
+                                    onclick="setRating(this, 'store')"></i>
+                                <i class="far fa-star cursor-pointer" data-rating="5"
+                                    onclick="setRating(this, 'store')"></i>
+                            </div>
+                            <input type="hidden" name="store_rating" id="store_rating_input" required>
+                            <textarea name="store_comment" class="form-control mt-2 border-dashed" rows="2"
+                                placeholder="Tell us about the overall experience..."></textarea>
+                        </div>
+
+                        <!-- Product Ratings -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold mb-2">Product Ratings</label>
+                            <% items.forEach(item=> { %>
+                                <div class="product-rating-item mb-3 p-3 bg-light rounded-3">
+                                    <div class="d-flex align-items-center gap-3 mb-2">
+                                        <% let reviewSubImg='https://via.placeholder.com/40' ; if (item.image_urls) {
+                                            try { if (item.image_urls.trim().startsWith('[')) { const
+                                            parsed=JSON.parse(item.image_urls); if (Array.isArray(parsed) &&
+                                            parsed.length> 0) reviewSubImg = parsed[0];
+                                            } else {
+                                            reviewSubImg = item.image_urls;
+                                            }
+                                            } catch (e) {
+                                            if (typeof item.image_urls === 'string') reviewSubImg = item.image_urls;
+                                            }
+                                            }
+                                            %>
+                                            <img src="<%= reviewSubImg %>" class="rounded-2"
+                                                style="width: 40px; height: 40px; object-fit: cover;">
+                                            <span class="small fw-bold">
+                                                <%= item.product_name %>
+                                            </span>
+                                    </div>
+                                    <div class="star-rating fs-4 text-warning mb-2">
+                                        <% for(let i=1; i<=5; i++) { %>
+                                            <i class="far fa-star cursor-pointer" data-rating="<%= i %>"
+                                                onclick="setProductRating(this, '<%= item.product_id %>')"></i>
+                                            <% } %>
+                                    </div>
+                                    <input type="hidden" name="product_rating_<%= item.product_id %>"
+                                        id="product_rating_<%= item.product_id %>">
+                                    <textarea name="product_comment_<%= item.product_id %>"
+                                        class="form-control form-control-sm border-dashed" rows="1"
+                                        placeholder="Feedback for this item..."></textarea>
+                                </div>
+                                <% }) %>
+                        </div>
+
+                        <!-- Rider Rating (if assigned) -->
+                        <% if (order.rider_id) { %>
+                            <div class="mb-4">
+                                <label class="form-label fw-bold mb-1">Rider Experience</label>
+                                <div class="star-rating fs-3 text-warning">
+                                    <i class="far fa-star cursor-pointer" data-rating="1"
+                                        onclick="setRating(this, 'rider')"></i>
+                                    <i class="far fa-star cursor-pointer" data-rating="2"
+                                        onclick="setRating(this, 'rider')"></i>
+                                    <i class="far fa-star cursor-pointer" data-rating="3"
+                                        onclick="setRating(this, 'rider')"></i>
+                                    <i class="far fa-star cursor-pointer" data-rating="4"
+                                        onclick="setRating(this, 'rider')"></i>
+                                    <i class="far fa-star cursor-pointer" data-rating="5"
+                                        onclick="setRating(this, 'rider')"></i>
+                                </div>
+                                <input type="hidden" name="rider_rating" id="rider_rating_input">
+                                <textarea name="rider_comment" class="form-control mt-2 border-dashed" rows="2"
+                                    placeholder="How was the delivery?"></textarea>
+                            </div>
+                            <% } %>
+
+                                <button type="submit"
+                                    class="btn btn-primary w-100 rounded-pill py-3 fw-bold mt-2">Submit
+                                    Feedback</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .border-dashed {
+            border-style: dashed !important;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function setRating(star, type) {
+            const rating = star.dataset.rating;
+            const container = star.parentElement;
+            const input = document.getElementById(`${type}_rating_input`);
+
+            input.value = rating;
+
+            const stars = container.querySelectorAll('.fa-star');
+            stars.forEach((s, idx) => {
+                if (idx < rating) {
+                    s.classList.remove('far');
+                    s.classList.add('fas');
+                } else {
+                    s.classList.remove('fas');
+                    s.classList.add('far');
+                }
+            });
+        }
+
+        function setProductRating(star, productId) {
+            const rating = star.dataset.rating;
+            const container = star.parentElement;
+            const input = document.getElementById(`product_rating_${productId}`);
+
+            input.value = rating;
+
+            const stars = container.querySelectorAll('.fa-star');
+            stars.forEach((s, idx) => {
+                if (idx < rating) {
+                    s.classList.remove('far', 'text-secondary');
+                    s.classList.add('fas', 'text-warning');
+                } else {
+                    s.classList.remove('fas', 'text-warning');
+                    s.classList.add('far', 'text-secondary');
+                }
+            });
+        }
+
+        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            // Structure product reviews
+            const productReviews = [];
+            document.querySelectorAll('[id^="product_rating_"]').forEach(input => {
+                const productId = input.id.replace('product_rating_', '');
+                const rating = input.value;
+                const comment = document.querySelector(`[name="product_comment_${productId}"]`).value;
+
+                if (rating) {
+                    productReviews.push({
+                        product_id: productId,
+                        rating: rating,
+                        comment: comment
+                    });
+                }
+            });
+            data.products = productReviews;
+
+            if (!data.store_rating) {
+                Swal.fire('Error', 'Please provide at least a store rating', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/customer/review', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    Swal.fire({
+                        title: 'Success',
+                        text: result.message,
+                        icon: 'success'
+                    }).then(() => location.reload());
+                } else {
+                    Swal.fire('Error', result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Review submission error:', error);
+                Swal.fire('Error', 'Something went wrong', 'error');
+            }
+        });
+    </script>
+
+    <%- include('../partials/footer') %>

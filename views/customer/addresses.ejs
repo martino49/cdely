@@ -1,0 +1,284 @@
+<%- include('../partials/header', { title: 'My Addresses' }) %>
+
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold m-0 text-dark">My Addresses</h2>
+            <button class="btn btn-primary rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#addAddressModal">
+                <i class="fas fa-plus me-2"></i> Add New Address
+            </button>
+        </div>
+
+        <% if (addresses && addresses.length> 0) { %>
+            <div class="row g-4">
+                <% addresses.forEach(address=> { %>
+                    <div class="col-md-6">
+                        <div
+                            class="card border-0 shadow-sm rounded-4 p-4 h-100 position-relative <%= address.is_default ? 'border-start border-4 border-primary' : '' %>">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-circle">
+                                        <i
+                                            class="fas fa-<%= address.label.toLowerCase() === 'home' ? 'home' : (address.label.toLowerCase() === 'work' ? 'briefcase' : 'map-marker-alt') %>"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-0 text-dark">
+                                            <%= address.label %>
+                                                <% if (address.is_default) { %>
+                                                    <span
+                                                        class="badge bg-primary rounded-pill ms-2 small">Default</span>
+                                                    <% } %>
+                                        </h5>
+                                        <small class="text-muted">
+                                            <%= address.contact_name %> • <%= address.contact_phone %>
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="dropdown">
+                                    <button class="btn btn-light btn-sm rounded-circle" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3">
+                                        <% if (!address.is_default) { %>
+                                            <li><a class="dropdown-item" href="#"
+                                                    onclick="setDefault('<%= address.id %>')">Set as Default</a></li>
+                                            <% } %>
+                                                <li><a class="dropdown-item text-danger" href="#"
+                                                        onclick="deleteAddress('<%= address.id %>')">Delete</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <p class="text-dark mb-1">
+                                <%= address.address_line1 %>
+                            </p>
+                            <% if (address.address_line2) { %>
+                                <p class="text-dark mb-1">
+                                    <%= address.address_line2 %>
+                                </p>
+                                <% } %>
+                                    <p class="text-muted small mb-0">
+                                        <%= address.city %>, <%= address.state %>
+                                                <%= address.postal_code %>
+                                    </p>
+                                    <% if (address.landmark) { %>
+                                        <small class="text-info mt-2 d-block"><i class="fas fa-info-circle me-1"></i>
+                                            Landmark: <%= address.landmark %></small>
+                                        <% } %>
+                        </div>
+                    </div>
+                    <% }) %>
+            </div>
+            <% } else { %>
+                <div class="text-center py-5 bg-white rounded-4 shadow-sm">
+                    <div class="mb-4">
+                        <i class="fas fa-map-marked-alt fa-4x text-muted opacity-25"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark">No addresses saved</h4>
+                    <p class="text-muted">Add your delivery addresses for a faster checkout experience.</p>
+                </div>
+                <% } %>
+    </div>
+
+    <!-- Add Address Modal -->
+    <div class="modal fade" id="addAddressModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold">Add New Address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="addressForm">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label small fw-bold">Address Label (e.g. Home, Work)</label>
+                                <input type="text" name="label" class="form-control rounded-3" placeholder="Home"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Contact Name</label>
+                                <input type="text" name="contact_name" class="form-control rounded-3"
+                                    placeholder="John Doe" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Contact Phone</label>
+                                <input type="tel" name="contact_phone" class="form-control rounded-3"
+                                    placeholder="+254..." required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold d-flex justify-content-between">
+                                    Street Address
+                                    <button type="button"
+                                        class="btn btn-link p-0 text-primary small fw-bold text-decoration-none"
+                                        id="detectLocationBtn" onclick="detectLocation()">
+                                        <i class="fas fa-location-arrow me-1"></i> Use Current Location
+                                    </button>
+                                </label>
+                                <input type="text" name="address_line1" id="address_line1"
+                                    class="form-control rounded-3" placeholder="Apartment, Street" required>
+                                <input type="hidden" name="latitude" id="latInput">
+                                <input type="hidden" name="longitude" id="lngInput">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label small fw-bold">Landmark (Optional)</label>
+                                <input type="text" name="landmark" class="form-control rounded-3"
+                                    placeholder="Near XYZ Mall">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">City</label>
+                                <input type="text" name="city" class="form-control rounded-3" placeholder="Nairobi"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Postal Code</label>
+                                <input type="text" name="postal_code" class="form-control rounded-3"
+                                    placeholder="00100">
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" name="is_default"
+                                        id="flexSwitchCheckDefault">
+                                    <label class="form-check-label small fw-bold" for="flexSwitchCheckDefault">Set as
+                                        default address</label>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold mt-4">Save
+                            Address</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.getElementById('addressForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            data.is_default = e.target.is_default.checked;
+
+            try {
+                const response = await fetch('/customer/addresses', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    Swal.fire('Success', result.message, 'success').then(() => location.reload());
+                } else {
+                    Swal.fire('Error', result.message, 'error');
+                }
+            } catch (error) {
+                console.error('Add address error:', error);
+                Swal.fire('Error', 'Something went wrong', 'error');
+            }
+        });
+
+        async function detectLocation() {
+            const btn = document.getElementById('detectLocationBtn');
+            const originalContent = btn.innerHTML;
+
+            if (!navigator.geolocation) {
+                Swal.fire('Error', 'Geolocation is not supported by your browser', 'error');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Locating...';
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    document.getElementById('latInput').value = lat;
+                    document.getElementById('lngInput').value = lng;
+
+                    // Try to get a readable address via reverse geocoding if possible
+                    try {
+                        const apiKey = '<%= mapApiKey %>';
+                        if (apiKey && apiKey !== 'your_google_maps_api_key') {
+                            const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`);
+                            const data = await response.json();
+
+                            if (data.status === 'OK' && data.results[0]) {
+                                const addr = data.results[0];
+                                // Fill address fields
+                                document.getElementById('address_line1').value = addr.formatted_address;
+
+                                // Extract city and postal code
+                                for (const component of addr.address_components) {
+                                    if (component.types.includes('locality')) {
+                                        document.querySelector('input[name="city"]').value = component.long_name;
+                                    }
+                                    if (component.types.includes('postal_code')) {
+                                        document.querySelector('input[name="postal_code"]').value = component.long_name;
+                                    }
+                                }
+                                showToast('Location Found', 'Form fields have been filled automatically.');
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Reverse geocoding failed:', err);
+                    }
+
+                    showToast('Location Pinpointed', `Captured: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+
+                    btn.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i> Location Captured';
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = originalContent;
+                    }, 3000);
+                },
+                (error) => {
+                    console.error('Geolocation error:', error);
+                    let msg = 'Failed to get location';
+                    if (error.code === 1) msg = 'Location permission denied';
+                    Swal.fire('Location Error', msg, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        async function deleteAddress(id) {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(`/customer/addresses/${id}`, { method: 'DELETE' });
+                    const data = await response.json();
+                    if (data.success) {
+                        location.reload();
+                    }
+                } catch (error) {
+                    console.error('Delete address error:', error);
+                }
+            }
+        }
+
+        async function setDefault(id) {
+            try {
+                const response = await fetch(`/customer/addresses/${id}/default`, { method: 'POST' });
+                const data = await response.json();
+                if (data.success) {
+                    location.reload();
+                }
+            } catch (error) {
+                console.error('Set default address error:', error);
+            }
+        }
+    </script>
+
+    <%- include('../partials/footer') %>

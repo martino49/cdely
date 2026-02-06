@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account | QuickDeliver</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(45deg, #4361ee, #4895ef, #4cc9f0);
+            --primary-blue: #4361ee;
+            --light-blue: #f0f7ff;
+            --dark-text: #2b2d42;
+            --gray-text: #8d99ae;
+            --border-color: #edf2f4;
+            --white: #ffffff;
+            --error-red: #ef233c;
+            --success-green: #2ecc71;
+        }
+
+        * {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            color: var(--dark-text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 950px;
+            height: 700px;
+            background-color: var(--white);
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            display: flex;
+            position: relative;
+        }
+
+        .visual-side {
+            flex: 1;
+            background: var(--primary-gradient);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .visual-side::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://images.unsplash.com/photo-1526367790999-0150786486a9?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.15;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+            z-index: 2;
+        }
+
+        .logo {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -1px;
+        }
+
+        .tagline {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 280px;
+            line-height: 1.4;
+        }
+
+        .features-list {
+            list-style: none;
+            margin-top: 30px;
+            z-index: 2;
+        }
+
+        .features-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .features-list i {
+            margin-right: 12px;
+            font-size: 18px;
+            background: rgba(255, 255, 255, 0.2);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .form-side {
+            flex: 1.2;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            position: relative;
+        }
+
+        .progress-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 35px;
+        }
+
+        .step {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+            color: var(--gray-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .step.active {
+            background: var(--primary-blue);
+            color: white;
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.15);
+        }
+
+        .step.completed {
+            background-color: var(--success-green);
+            color: white;
+        }
+
+        .step-line {
+            flex: 1;
+            height: 2px;
+            background-color: var(--border-color);
+            margin: 0 10px;
+        }
+
+        .step-line.completed {
+            background-color: var(--success-green);
+        }
+
+        .form-panels {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-panel {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .form-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .panel-title {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--dark-text);
+        }
+
+        .panel-subtitle {
+            color: var(--gray-text);
+            font-size: 15px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--dark-text);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.2s;
+            background: #fcfcfc;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            border-color: var(--primary-blue);
+            background: white;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.05);
+        }
+
+        .btn-primary {
+            background: var(--primary-blue);
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            color: white;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #3651d1;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            color: var(--dark-text);
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .account-type-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .type-card {
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .type-card i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: var(--gray-text);
+        }
+
+        .type-card p {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 0;
+            color: var(--gray-text);
+        }
+
+        .type-card.active {
+            border-color: var(--primary-blue);
+            background: var(--light-blue);
+        }
+
+        .type-card.active i,
+        .type-card.active p {
+            color: var(--primary-blue);
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: var(--gray-text);
+        }
+
+        .login-link a {
+            color: var(--primary-blue);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray-text);
+            text-decoration: none;
+            transition: all 0.2s;
+            z-index: 10;
+        }
+
+        .back-link:hover {
+            background: var(--light-blue);
+            color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        @media (max-width: 900px) {
+            .auth-container {
+                flex-direction: column;
+                height: auto;
+                max-width: 500px;
+            }
+
+            .visual-side {
+                padding: 30px;
+                min-height: 200px;
+            }
+
+            .features-list {
+                display: none;
+            }
+
+            .form-side {
+                padding: 40px 25px;
+            }
+
+            .back-link {
+                top: 10px;
+                right: 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="/customer/stores" class="back-link">
+        <i class="fas fa-arrow-left me-2"></i> Back to Browsing
+    </a>
+
+    <div class="auth-container">
+        <div class="visual-side">
+            <div class="logo-container">
+                <div class="logo">QuickDeliver</div>
+                <p class="tagline">Fast. Reliable. Fresh. Join thousands getting their favorites delivered in minutes.
+                </p>
+            </div>
+
+            <ul class="features-list">
+                <li><i class="fas fa-truck"></i> Real-time order tracking</li>
+                <li><i class="fas fa-store"></i> 500+ local partners</li>
+                <li><i class="fas fa-wallet"></i> Integrated digital wallet</li>
+                <li><i class="fas fa-star"></i> Verified reviews & ratings</li>
+            </ul>
+        </div>
+
+        <div class="form-side">
+            <div class="progress-bar">
+                <div class="step active" id="step-1">1</div>
+                <div class="step-line" id="line-1"></div>
+                <div class="step" id="step-2">2</div>
+                <div class="step-line" id="line-2"></div>
+                <div class="step" id="step-3">3</div>
+            </div>
+
+            <form action="/auth/register" method="POST" id="mainRegisterForm">
+                <input type="hidden" name="user_type" id="userTypeInput" value="customer">
+
+                <div class="form-panels">
+                    <!-- Panel 1: Account Type -->
+                    <div class="form-panel active" id="panel-1">
+                        <h2 class="panel-title">Getting Started</h2>
+                        <p class="panel-subtitle">How do you want to use QuickDeliver?</p>
+
+                        <div class="account-type-grid">
+                            <div class="type-card active" onclick="setUserType('customer', this)">
+                                <i class="fas fa-shopping-bag"></i>
+                                <p>Buyer</p>
+                            </div>
+                            <div class="type-card" onclick="setUserType('seller', this)">
+                                <i class="fas fa-store"></i>
+                                <p>Seller</p>
+                            </div>
+                            <div class="type-card" onclick="setUserType('rider', this)">
+                                <i class="fas fa-motorcycle"></i>
+                                <p>Rider</p>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-primary" onclick="nextStep(2)">Continue</button>
+
+                        <div class="login-link">
+                            Already have an account? <a href="/auth/login">Log In</a>
+                        </div>
+                    </div>
+
+                    <!-- Panel 2: Basic Details -->
+                    <div class="form-panel" id="panel-2">
+                        <h2 class="panel-title">Basic Details</h2>
+                        <p class="panel-subtitle">Let's set up your personal information.</p>
+
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="name" class="form-input" placeholder="John Doe" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" name="email" class="form-input" placeholder="john@example.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" name="phone" class="form-input" placeholder="+254 700 000 000" required>
+                        </div>
+
+                        <button type="button" class="btn-primary" onclick="nextStep(3)">Almost Done</button>
+                        <button type="button" class="btn-secondary" onclick="prevStep(1)">Back</button>
+                    </div>
+
+                    <!-- Panel 3: Security -->
+                    <div class="form-panel" id="panel-3">
+                        <h2 class="panel-title">Secure Your Account</h2>
+                        <p class="panel-subtitle">Choose a strong password to protect your data.</p>
+
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" id="password" class="form-input"
+                                placeholder="••••••••" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" name="confirm_password" id="confirm_password" class="form-input"
+                                placeholder="••••••••" required>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                            <label class="form-check-label small text-muted" for="termsCheck">
+                                I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn-primary">Create Account</button>
+                        <button type="button" class="btn-secondary" onclick="prevStep(2)">Back</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let currentStep = 1;
+
+        function setUserType(type, element) {
+            document.getElementById('userTypeInput').value = type;
+            document.querySelectorAll('.type-card').forEach(card => card.classList.remove('active'));
+            element.classList.add('active');
+        }
+
+        function nextStep(step) {
+            if (step === 3) {
+                const name = document.querySelector('input[name="name"]').value;
+                const email = document.querySelector('input[name="email"]').value;
+                const phone = document.querySelector('input[name="phone"]').value;
+                if (!name || !email || !phone) {
+                    alert('Please fill in all details');
+                    return;
+                }
+            }
+
+            document.getElementById(`panel-${currentStep}`).classList.remove('active');
+            document.getElementById(`panel-${step}`).classList.add('active');
+
+            document.getElementById(`step-${step}`).classList.add('active');
+            document.getElementById(`line-${currentStep}`).classList.add('completed');
+            document.getElementById(`step-${currentStep}`).classList.add('completed');
+
+            currentStep = step;
+        }
+
+        function prevStep(step) {
+            document.getElementById(`panel-${currentStep}`).classList.remove('active');
+            document.getElementById(`panel-${step}`).classList.add('active');
+
+            document.getElementById(`step-${currentStep}`).classList.remove('active');
+            document.getElementById(`line-${step}`).classList.remove('completed');
+
+            currentStep = step;
+        }
+
+        document.getElementById('mainRegisterForm').addEventListener('submit', function (e) {
+            const pass = document.getElementById('password').value;
+            const confirm = document.getElementById('confirm_password').value;
+            const terms = document.getElementById('termsCheck').checked;
+
+            if (pass !== confirm) {
+                e.preventDefault();
+                alert('Passwords do not match');
+                return;
+            }
+
+            if (!terms) {
+                e.preventDefault();
+                alert('Please agree to the terms');
+                return;
+            }
+        });
+    </script>
+</body>
+
+</html>

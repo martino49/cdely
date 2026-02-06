@@ -1,0 +1,110 @@
+<%- include('../partials/header', { title: 'Available Jobs' }) %>
+
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold text-dark">Available Jobs</h2>
+                <p class="text-muted">New delivery assignments in your current area</p>
+            </div>
+            <a href="/rider/dashboard" class="btn btn-light rounded-pill px-4"><i class="fas fa-arrow-left me-2"></i> My
+                Dashboard</a>
+        </div>
+
+        <% if (orders && orders.length> 0) { %>
+            <div class="row g-4">
+                <% orders.forEach(order=> { %>
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+                            <div class="card-header bg-white border-0 p-4 pb-0 d-flex justify-content-between">
+                                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">READY FOR
+                                    PICKUP</span>
+                                <span class="fw-bold text-success">KSH 250 fee</span>
+                            </div>
+                            <div class="card-body p-4">
+                                <div class="d-flex gap-3 mb-4">
+                                    <img src="<%= order.store_logo || 'https://via.placeholder.com/60' %>"
+                                        class="rounded-3" width="60" height="60" style="object-fit: cover;">
+                                    <div>
+                                        <h5 class="fw-bold mb-1 text-dark">
+                                            <%= order.store_name %>
+                                        </h5>
+                                        <p class="small text-muted mb-0">
+                                            <%= order.store_address %>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div class="bg-light p-3 rounded-3 mb-4">
+                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                        <i class="fas fa-map-marker-alt text-danger"></i>
+                                        <small class="fw-bold text-dark">Dropoff: <%= order.delivery_address %></small>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="fas fa-clock text-muted"></i>
+                                        <small class="text-muted">Expected 35m total</small>
+                                    </div>
+                                </div>
+
+                                <button class="btn btn-primary w-100 rounded-pill py-2 fw-bold"
+                                    onclick="acceptJob('<%= order.id %>')">
+                                    Accept Delivery Job
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+            </div>
+            <% } else { %>
+                <div class="card border-0 shadow-sm rounded-4 text-center p-5">
+                    <div class="py-5">
+                        <div class="bg-light d-inline-block p-4 rounded-circle mb-4 text-center">
+                            <i class="fas fa-search fa-4x text-muted opacity-25"></i>
+                        </div>
+                        <h3 class="fw-bold text-dark">Scanning for jobs...</h3>
+                        <p class="text-muted mb-0">Currently no delivery jobs match your criteria.</p>
+                        <button class="btn btn-sm btn-link mt-3" onclick="window.location.reload()">Refresh Job
+                            List</button>
+                    </div>
+                </div>
+                <% } %>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        async function acceptJob(orderId) {
+            const result = await Swal.fire({
+                title: 'Accept Job?',
+                text: "You are committing to deliver this order.",
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#00A082',
+                confirmButtonText: 'Yes, I\'ll take it!'
+            });
+
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch('/rider/accept-order', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderId })
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        Swal.fire({
+                            title: 'Success!',
+                            text: 'Job assigned to you. Head to the store now!',
+                            icon: 'success'
+                        }).then(() => {
+                            window.location.href = '/rider/dashboard';
+                        });
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                } catch (error) {
+                    console.error('Accept job failed:', error);
+                }
+            }
+        }
+    </script>
+
+    <%- include('../partials/footer') %>

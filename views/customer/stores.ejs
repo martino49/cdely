@@ -1,0 +1,372 @@
+<%- include('../partials/header', { title: 'Explore Stores' }) %>
+
+    <style>
+        :root {
+            --primary-brand: #4361ee;
+            --secondary-brand: #3f37c9;
+            --accent-green: #2ecc71;
+            --accent-gold: #ffc107;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --bg-body: #f8fafc;
+            --card-radius: 28px;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            --transition-base: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .browse-wrapper {
+            background: var(--bg-body);
+            min-height: 100vh;
+            padding-bottom: 80px;
+        }
+
+        .discovery-header {
+            background: white;
+            padding: 60px 0;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .discovery-title {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -1.5px;
+            margin-bottom: 15px;
+        }
+
+        .filter-sidebar {
+            position: sticky;
+            top: 100px;
+        }
+
+        .filter-card {
+            background: white;
+            border-radius: var(--card-radius);
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            border: none;
+        }
+
+        .filter-label {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .search-modern {
+            background: #f1f5f9;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 12px 20px;
+            font-weight: 500;
+            transition: var(--transition-base);
+        }
+
+        .search-modern:focus {
+            background: white;
+            border-color: var(--primary-brand);
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+            outline: none;
+        }
+
+        .select-modern {
+            background: #f1f5f9;
+            border: 2px solid transparent;
+            border-radius: 16px;
+            padding: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .select-modern:focus {
+            border-color: var(--primary-brand);
+            outline: none;
+        }
+
+        .store-modern-card {
+            background: white;
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            border: none;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition-base);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .store-modern-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.08);
+        }
+
+        .store-img-container {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .store-banner-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .store-modern-card:hover .store-banner-img {
+            transform: scale(1.1);
+        }
+
+        .rating-badge-top {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .category-tag {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: var(--primary-brand);
+            color: white;
+            padding: 4px 14px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .store-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .store-name-link {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-main);
+            text-decoration: none;
+            margin-bottom: 8px;
+            transition: var(--transition-base);
+        }
+
+        .store-name-link:hover {
+            color: var(--primary-brand);
+        }
+
+        .store-desc-short {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 2.8em;
+        }
+
+        .store-footer-meta {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 15px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .delivery-time-text {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-green);
+        }
+
+        .view-menu-btn {
+            background: #f1f5ff;
+            color: var(--primary-brand);
+            padding: 8px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: var(--transition-base);
+        }
+
+        .view-menu-btn:hover {
+            background: var(--primary-brand);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .btn-apply-filters {
+            background: var(--primary-brand);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 16px;
+            font-weight: 700;
+            transition: var(--transition-base);
+        }
+
+        .btn-apply-filters:hover {
+            background: var(--secondary-brand);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(67, 97, 238, 0.2);
+        }
+    </style>
+
+    <div class="browse-wrapper">
+        <div class="discovery-header">
+            <div class="container text-center">
+                <h1 class="discovery-title">Discover Stores</h1>
+                <p class="lead text-muted">The best restaurants and local shops, delivered in minutes.</p>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <!-- Left: Sidebar -->
+                <div class="col-lg-3">
+                    <div class="filter-sidebar">
+                        <div class="filter-card">
+                            <form action="/customer/stores" method="GET">
+                                <div class="mb-4">
+                                    <label class="filter-label">Search</label>
+                                    <input type="text" name="search" class="form-control search-modern"
+                                        placeholder="Hungry for...?" value="<%= filters.search || '' %>">
+                                </div>
+
+                                <div class="mb-4">
+                                    <label class="filter-label">Categories</label>
+                                    <select name="category" class="form-select select-modern shadow-none">
+                                        <option value="">All Types</option>
+                                        <option value="food" <%=(filters.category==='food' ? 'selected' : '' ) %>>Food &
+                                            Drinks</option>
+                                        <option value="groceries" <%=(filters.category==='groceries' ? 'selected' : '' )
+                                            %>>Groceries</option>
+                                        <option value="pharmacy" <%=(filters.category==='pharmacy' ? 'selected' : '' )
+                                            %>>Pharmacy</option>
+                                        <option value="electronics" <%=(filters.category==='electronics' ? 'selected'
+                                            : '' ) %>>Electronics</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-5">
+                                    <label class="filter-label">Minimum Rating</label>
+                                    <div class="btn-group-vertical w-100 gap-2">
+                                        <div class="form-check custom-option p-0">
+                                            <input class="btn-check" type="radio" name="minRating" value="4.5" id="r45"
+                                                <%=(filters.minRating=='4.5' ? 'checked' : '' ) %>>
+                                            <label
+                                                class="btn btn-outline-light text-dark text-start w-100 rounded-3 border-2"
+                                                for="r45" style="border-radius: 12px !important;">
+                                                <i class="fas fa-star text-warning me-1"></i> 4.5 & Above
+                                            </label>
+                                        </div>
+                                        <div class="form-check custom-option p-0">
+                                            <input class="btn-check" type="radio" name="minRating" value="4.0" id="r40"
+                                                <%=(filters.minRating=='4.0' ? 'checked' : '' ) %>>
+                                            <label
+                                                class="btn btn-outline-light text-dark text-start w-100 rounded-3 border-2"
+                                                for="r40" style="border-radius: 12px !important;">
+                                                <i class="fas fa-star text-warning me-1"></i> 4.0 & Above
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="d-grid gap-3">
+                                    <button type="submit" class="btn-apply-filters">APPLY FILTERS</button>
+                                    <a href="/customer/stores"
+                                        class="btn btn-link text-muted text-decoration-none fw-bold small text-center">CLEAR
+                                        ALL</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Content -->
+                <div class="col-lg-9">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5 class="fw-800 text-dark mb-0">
+                            <%= (stores ? stores.length : 0) %> STORES NEAR YOU
+                        </h5>
+                    </div>
+
+                    <div class="row g-4">
+                        <% if (stores && stores.length> 0) { %>
+                            <% stores.forEach(store=> { %>
+                                <div class="col-md-6 col-xl-4">
+                                    <div class="store-modern-card">
+                                        <div class="store-img-container">
+                                            <img src="<%= store.logo_url || 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=500&q=80' %>"
+                                                class="store-banner-img" alt="<%= store.name %>">
+
+                                            <div class="rating-badge-top">
+                                                <i class="fas fa-star text-warning"></i>
+                                                <%= store.rating || 'New' %>
+                                            </div>
+
+                                            <div class="category-tag">
+                                                <%= store.category %>
+                                            </div>
+                                        </div>
+
+                                        <div class="store-body">
+                                            <a href="/customer/store/<%= store.id %>" class="store-name-link">
+                                                <%= store.name %>
+                                            </a>
+                                            <p class="store-desc-short">
+                                                <%= store.description
+                                                    || 'Experience the best gourmet selections with lighting-fast delivery times and premium service.'
+                                                    %>
+                                            </p>
+
+                                            <div class="store-footer-meta">
+                                                <div class="delivery-time-text">
+                                                    <i class="fas fa-bolt me-1"></i> 20-30 MIN
+                                                </div>
+                                                <a href="/customer/store/<%= store.id %>" class="view-menu-btn">MENU</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% }) %>
+                                    <% } else { %>
+                                        <div class="col-12 text-center py-5">
+                                            <div class="py-5 bg-white rounded-5 shadow-sm border border-dashed">
+                                                <i class="fas fa-search fa-3x text-muted opacity-25 mb-4"></i>
+                                                <h3 class="fw-800">No results found</h3>
+                                                <p class="text-muted mb-4">Try adjusting your filters to find more
+                                                    stores.</p>
+                                                <a href="/customer/stores"
+                                                    class="btn btn-primary rounded-pill px-5 py-3 fw-bold">RESET
+                                                    SEARCH</a>
+                                            </div>
+                                        </div>
+                                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer') %>

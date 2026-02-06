@@ -1,0 +1,203 @@
+<%- include('../partials/header', { title: 'My Wallet' }) %>
+
+    <div class="container mt-4 mb-5">
+        <div class="row">
+            <!-- Wallet Summary Column -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4 bg-primary text-white">
+                    <div class="card-body p-4 position-relative">
+                        <div class="position-absolute top-0 end-0 p-3 opacity-10">
+                            <i class="fas fa-wallet fa-5x"></i>
+                        </div>
+                        <p class="text-uppercase small fw-bold opacity-75 mb-1">Available Balance</p>
+                        <h1 class="display-5 fw-bold mb-4">KSH <%= balance.toLocaleString() %>
+                        </h1>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-white text-primary rounded-pill fw-bold" onclick="topUp()">
+                                <i class="fas fa-plus-circle me-2"></i> Top Up Wallet
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 rounded-4 p-4">
+                    <h5 class="fw-bold mb-3">Quick Actions</h5>
+                    <div class="d-grid gap-3">
+                        <div
+                            class="d-flex align-items-center gap-3 p-2 rounded-3 hover-bg scroll-behavior-smooth cursor-pointer">
+                            <div class="bg-success bg-opacity-10 text-success p-3 rounded-circle">
+                                <i class="fas fa-paper-plane"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Send Money</h6>
+                                <small class="text-muted">To other users</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-3 p-2 rounded-3 hover-bg cursor-pointer">
+                            <div class="bg-info bg-opacity-10 text-info p-3 rounded-circle">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">Withdraw</h6>
+                                <small class="text-muted">To Bank or M-Pesa</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transactions Column -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                    <div class="card-header bg-white p-4 border-0">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="fw-bold m-0 text-dark">Recent Transactions</h4>
+                            <div class="dropdown">
+                                <button class="btn btn-light btn-sm rounded-pill px-3 dropdown-toggle"
+                                    data-bs-toggle="dropdown">
+                                    Filter By
+                                </button>
+                                <ul class="dropdown-menu border-0 shadow">
+                                    <li><a class="dropdown-item" href="#">All</a></li>
+                                    <li><a class="dropdown-item" href="#">Credit</a></li>
+                                    <li><a class="dropdown-item" href="#">Debit</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th class="ps-4 border-0 text-muted small text-uppercase">Transaction</th>
+                                        <th class="border-0 text-muted small text-uppercase">Date</th>
+                                        <th class="border-0 text-muted small text-uppercase">Status</th>
+                                        <th class="pe-4 border-0 text-muted small text-uppercase text-end">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% transactions.forEach(tx=> { %>
+                                        <tr>
+                                            <td class="ps-4">
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div
+                                                        class="rounded-pill p-2 bg-<%= tx.type === 'credit' ? 'success' : 'danger' %> bg-opacity-10 text-<%= tx.type === 'credit' ? 'success' : 'danger' %>">
+                                                        <i
+                                                            class="fas fa-<%= tx.type === 'credit' ? 'arrow-down' : 'arrow-up' %>"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="fw-bold mb-0">
+                                                            <%= tx.description %>
+                                                        </h6>
+                                                        <small class="text-muted">ID: #TXN-<%= tx.id %></small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="text-muted small">
+                                                <%= new Date(tx.date).toLocaleDateString() %>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="badge bg-<%= tx.status === 'completed' ? 'success' : 'warning' %> bg-opacity-10 text-<%= tx.status === 'completed' ? 'success' : 'warning' %> rounded-pill px-3">
+                                                    <%= tx.status.charAt(0).toUpperCase() + tx.status.slice(1) %>
+                                                </span>
+                                            </td>
+                                            <td class="pe-4 text-end">
+                                                <span
+                                                    class="fw-bold text-<%= tx.type === 'credit' ? 'success' : 'dark' %>">
+                                                    <%= tx.type==='credit' ? '+' : '-' %>
+                                                        <%= tx.amount.toLocaleString() %> KES
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-white border-0 p-4 text-center">
+                        <button class="btn btn-link text-primary text-decoration-none fw-bold">View Full
+                            Statement</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .btn-white {
+            background: #fff;
+            color: var(--primary-color);
+            border: none;
+        }
+
+        .btn-white:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+        }
+
+        .hover-bg:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function topUp() {
+            Swal.fire({
+                title: 'Top Up Wallet',
+                text: 'Enter amount to top up via M-Pesa Express',
+                input: 'number',
+                inputAttributes: {
+                    min: 10,
+                    max: 70000,
+                    step: 1
+                },
+                inputValue: 1000,
+                showCancelButton: true,
+                confirmButtonText: 'Initiate STK Push',
+                confirmButtonColor: '#00A082',
+                showLoaderOnConfirm: true,
+                preConfirm: (amount) => {
+                    return new Promise((resolve) => {
+                        setTimeout(() => {
+                            resolve(amount);
+                        }, 2000);
+                    });
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    const amount = result.value;
+                    try {
+                        const response = await fetch('/customer/wallet/topup', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ amount })
+                        });
+                        const data = await response.json();
+
+                        if (data.success) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Wallet topped up successfully.',
+                                icon: 'success'
+                            }).then(() => location.reload());
+                        } else {
+                            Swal.fire('Error', data.message, 'error');
+                        }
+                    } catch (error) {
+                        Swal.fire('Error', 'Connection failed', 'error');
+                    }
+                }
+            });
+        }
+    </script>
+
+    <%- include('../partials/footer') %>

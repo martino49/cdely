@@ -1,0 +1,163 @@
+<%- include('../partials/header', { title: 'My Orders' }) %>
+
+    <div class="container mt-4 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold m-0"><i class="fas fa-shopping-bag text-primary me-2"></i> My Order History</h2>
+            <div class="d-flex gap-2">
+                <select class="form-select form-select-sm rounded-pill px-3 shadow-sm"
+                    onchange="window.location.href=this.value">
+                    <option value="/customer/orders" <%=!statusFilter ? 'selected' : '' %>>All Statuses</option>
+                    <option value="/customer/orders?status=active" <%=statusFilter==='active' ? 'selected' : '' %>
+                        >Active Orders</option>
+                    <option value="/customer/orders?status=delivered" <%=statusFilter==='delivered' ? 'selected' : '' %>
+                        >Delivered</option>
+                </select>
+            </div>
+        </div>
+
+        <% if (orders && orders.length> 0) { %>
+            <div class="row g-4">
+                <% orders.forEach(order=> { %>
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0 rounded-4 hover-card overflow-hidden">
+                            <div class="card-body p-0">
+                                <div class="row g-0">
+                                    <!-- Store Info & ID -->
+                                    <div
+                                        class="col-md-3 p-4 bg-light bg-opacity-50 text-center d-flex flex-column justify-content-center border-end">
+                                        <img src="<%= order.store_logo || 'https://via.placeholder.com/60' %>"
+                                            class="rounded-circle shadow-sm mx-auto mb-3"
+                                            style="width: 60px; height: 60px; object-fit: cover;">
+                                        <h6 class="fw-bold mb-1">
+                                            <%= order.store_name %>
+                                        </h6>
+                                        <small class="text-muted">#<%= order.order_number %></small>
+                                    </div>
+
+                                    <!-- Main Info -->
+                                    <div class="col-md-6 p-4">
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <span class="badge bg-<%= 
+                                        (order.order_status || '').toLowerCase() === 'delivered' ? 'success' : 
+                                        ((order.order_status || '').toLowerCase() === 'cancelled' ? 'danger' : 'primary') 
+                                    %> bg-opacity-10 text-<%= 
+                                        (order.order_status || '').toLowerCase() === 'delivered' ? 'success' : 
+                                        ((order.order_status || '').toLowerCase() === 'cancelled' ? 'danger' : 'primary') 
+                                    %> rounded-pill px-3">
+                                                <%= (order.order_status || 'Pending' ).replace(/_/g, ' ' ).toUpperCase()
+                                                    %>
+                                            </span>
+                                            <small class="text-muted">
+                                                <%= new Date(order.created_at).toLocaleDateString('en-GB', {
+                                                    day: 'numeric' , month: 'short' , year: 'numeric' }) %>
+                                            </small>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <p class="mb-1 small text-muted"><i class="fas fa-map-marker-alt me-1"></i>
+                                                Delivery to:</p>
+                                            <p class="mb-0 text-truncate fw-500">
+                                                <%= order.delivery_address %>
+                                            </p>
+                                        </div>
+
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="avatar-group d-flex">
+                                                <!-- This would ideally show item previews -->
+                                                <div class="rounded-circle bg-light border p-1"
+                                                    style="width: 30px; height: 30px;"><i
+                                                        class="fas fa-utensils small"></i></div>
+                                            </div>
+                                            <span class="small text-muted">Items from <%= order.store_name %></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Action & Total -->
+                                    <div
+                                        class="col-md-3 p-4 d-flex flex-column justify-content-center align-items-center text-center">
+                                        <h4 class="fw-bold text-primary mb-3">KSH <%=
+                                                order.total_amount.toLocaleString() %>
+                                        </h4>
+                                        <div class="d-grid gap-2 w-100">
+                                            <a href="/customer/order/<%= order.id %>"
+                                                class="btn btn-primary btn-sm rounded-pill">View Details</a>
+                                            <% if (['pending', 'preparing' , 'ready_for_pickup' , 'on_the_way'
+                                                ].includes(order.order_status)) { %>
+                                                <a href="/customer/track/<%= order.id %>"
+                                                    class="btn btn-outline-primary btn-sm rounded-pill">Track Live</a>
+                                                <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+            </div>
+
+            <!-- Pagination -->
+            <% if (totalPages> 1) { %>
+                <nav class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                            <a class="page-link rounded-pill px-4 mx-1" href="?page=<%= currentPage - 1 %>">Previous</a>
+                        </li>
+                        <% for(let i=1; i <=totalPages; i++) { %>
+                            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                <a class="page-link rounded-circle mx-1"
+                                    style="width: 40px; height: 40px; text-align: center; line-height: 24px;"
+                                    href="?page=<%= i %>">
+                                    <%= i %>
+                                </a>
+                            </li>
+                            <% } %>
+                                <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                                    <a class="page-link rounded-pill px-4 mx-1"
+                                        href="?page=<%= currentPage + 1 %>">Next</a>
+                                </li>
+                    </ul>
+                </nav>
+                <% } %>
+
+                    <% } else { %>
+                        <div class="card border-0 shadow-sm rounded-4 text-center p-5">
+                            <div class="py-5">
+                                <div class="bg-light d-inline-block p-4 rounded-circle mb-4">
+                                    <i class="fas fa-shopping-bag fa-4x text-muted opacity-25"></i>
+                                </div>
+                                <h3 class="fw-bold">No orders found</h3>
+                                <p class="text-muted mb-4">You haven't placed any orders matching this criteria yet.</p>
+                                <a href="/customer/stores" class="btn btn-primary rounded-pill px-5 py-2">Discover
+                                    Stores</a>
+                            </div>
+                        </div>
+                        <% } %>
+    </div>
+
+    <style>
+        .fw-500 {
+            font-weight: 500;
+        }
+
+        .pagination .page-link {
+            border: none;
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .hover-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg) !important;
+        }
+    </style>
+
+    <%- include('../partials/footer') %>

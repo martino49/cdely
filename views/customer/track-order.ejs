@@ -1,0 +1,451 @@
+<%- include('../partials/header', { title: 'Track Order' , pageStyles: ['/css/map.css'] }) %>
+
+    <% const getStatusColor=(status)=> {
+        const colors = {
+        'pending': 'secondary',
+        'confirmed': 'info',
+        'preparing': 'primary',
+        'ready_for_pickup': 'warning',
+        'picked_up': 'success',
+        'in_transit': 'success',
+        'delivered': 'success',
+        'cancelled': 'danger'
+        };
+        return colors[status] || 'secondary';
+        };
+
+        const mapApiKey = locals.mapApiKey || null;
+        %>
+
+        <div class="container mt-4">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-primary text-white">
+                            <h4 class="mb-0">
+                                <i class="fas fa-map-marker-alt"></i> Live Tracking
+                                <span class="badge bg-light text-dark float-end">
+                                    <%= order.tracking_code %>
+                                </span>
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <!-- Map Container -->
+                            <div id="map" style="height: 400px; border-radius: 8px;"></div>
+
+                            <!-- Tracking Progress -->
+                            <div class="mt-4">
+                                <h5>Delivery Progress</h5>
+                                <div class="progress" style="height: 30px;">
+                                    <% const statuses=['pending', 'confirmed' , 'preparing' , 'ready_for_pickup'
+                                        , 'picked_up' , 'in_transit' , 'delivered' ]; %>
+                                        <% const currentIndex=statuses.indexOf(order.order_status); %>
+                                            <% const progress=((currentIndex + 1) / statuses.length) * 100; %>
+                                                <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                                    role="progressbar" style="width: <%= progress %>%">
+                                                    <%= Math.round(progress) %>% Complete
+                                                </div>
+                                </div>
+
+                                <!-- Status Timeline -->
+                                <div class="timeline mt-5">
+                                    <% statuses.forEach((status, index)=> { %>
+                                        <div class="timeline-step <%= index <= currentIndex ? 'completed' : '' %>">
+                                            <div class="timeline-icon shadow-sm">
+                                                <% if (index < currentIndex) { %>
+                                                    <i class="fas fa-check"></i>
+                                                    <% } else if (index===currentIndex) { %>
+                                                        <i class="fas fa-motorcycle fa-fade"></i>
+                                                        <% } else { %>
+                                                            <i class="far fa-circle text-muted"></i>
+                                                            <% } %>
+                                            </div>
+                                            <div class="timeline-label ms-3">
+                                                <strong
+                                                    class="d-block fs-5 <%= index === currentIndex ? 'text-primary' : 'text-dark' %>">
+                                                    <%= status.replace(/_/g, ' ' ).toUpperCase() %>
+                                                </strong>
+                                                <% if (index===currentIndex && order.updated_at) { %>
+                                                    <small class="text-muted">
+                                                        Updated: <%= new Date(order.updated_at).toLocaleTimeString([],
+                                                            {hour: '2-digit' , minute:'2-digit'}) %>
+                                                    </small>
+                                                    <% } %>
+                                            </div>
+                                        </div>
+                                        <% }) %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4">
+                    <!-- Order Summary -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Order Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-5">Order #:</dt>
+                                <dd class="col-sm-7">
+                                    <%= order.order_number %>
+                                </dd>
+
+                                <dt class="col-sm-5">Store:</dt>
+                                <dd class="col-sm-7">
+                                    <%= order.store_name %>
+                                </dd>
+
+                                <dt class="col-sm-5">Status:</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge bg-<%= getStatusColor(order.order_status) %>">
+                                        <%= order.order_status.replace(/_/g, ' ' ) %>
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-5">Tracking Code:</dt>
+                                <dd class="col-sm-7">
+                                    <code><%= order.tracking_code %></code>
+                                    <button class="btn btn-sm btn-outline-secondary ms-2" onclick="copyTrackingCode()">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </dd>
+
+                                <dt class="col-sm-5">Delivery Address:</dt>
+                                <dd class="col-sm-7">
+                                    <%= order.delivery_address %>
+                                </dd>
+
+                                <% if (locals.delivery) { %>
+                                    <dt class="col-sm-5">Rider:</dt>
+                                    <dd class="col-sm-7">
+                                        <strong>
+                                            <%= delivery.rider_name %>
+                                        </strong>
+                                        <br>
+                                        <small class="text-muted">
+                                            <i class="fas fa-phone"></i>
+                                            <%= delivery.rider_phone %>
+                                        </small>
+                                    </dd>
+
+                                    <dt class="col-sm-5">Vehicle:</dt>
+                                    <dd class="col-sm-7">
+                                        <i class="fas fa-<%= getVehicleIcon(delivery.vehicle_type) %>"></i>
+                                        <%= delivery.vehicle_type %>
+                                    </dd>
+
+                                    <dt class="col-sm-5">Rider Rating:</dt>
+                                    <dd class="col-sm-7">
+                                        <% for (let i=1; i <=5; i++) { %>
+                                            <% if (i <=delivery.rider_rating) { %>
+                                                <i class="fas fa-star text-warning"></i>
+                                                <% } else { %>
+                                                    <i class="far fa-star text-warning"></i>
+                                                    <% } %>
+                                                        <% } %>
+                                                            <span class="ms-1">(<%= delivery.rider_rating %>)</span>
+                                    </dd>
+                                    <% } %>
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Estimated Delivery -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0"><i class="fas fa-clock"></i> Delivery Time</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <% if (order.estimated_delivery_time) { %>
+                                <h3 class="display-6" id="countdown"></h3>
+                                <p class="text-muted">
+                                    Estimated: <%= new Date(order.estimated_delivery_time).toLocaleTimeString([], {
+                                        hour: '2-digit' , minute: '2-digit' }) %>
+                                </p>
+                                <% } else { %>
+                                    <p class="text-muted">Estimated time will be available soon</p>
+                                    <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0"><i class="fas fa-cogs"></i> Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button class="btn btn-primary" onclick="refreshTracking()">
+                                    <i class="fas fa-sync-alt"></i> Refresh Location
+                                </button>
+
+                                <% if (locals.delivery && delivery.rider_phone) { %>
+                                    <a href="tel:<%= delivery.rider_phone %>" class="btn btn-success">
+                                        <i class="fas fa-phone"></i> Call Rider
+                                    </a>
+                                    <% } %>
+
+                                        <a href="/customer/order/<%= order.id %>" class="btn btn-info">
+                                            <i class="fas fa-file-alt"></i> View Order Details
+                                        </a>
+
+                                        <% if (order.order_status==='in_transit' ) { %>
+                                            <button class="btn btn-warning" data-bs-toggle="modal"
+                                                data-bs-target="#issueModal">
+                                                <i class="fas fa-exclamation-triangle"></i> Report Issue
+                                            </button>
+                                            <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Issue Modal -->
+        <div class="modal fade" id="issueModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Report Delivery Issue</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="issueForm">
+                            <div class="mb-3">
+                                <label class="form-label">Issue Type</label>
+                                <select class="form-select" name="issue_type" required>
+                                    <option value="">Select issue type</option>
+                                    <option value="delay">Delivery Delay</option>
+                                    <option value="wrong_location">Wrong Location</option>
+                                    <option value="rider_issue">Rider Issue</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" name="description" rows="3" required></textarea>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-danger" onclick="submitIssue()">Submit Report</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <%- include('../partials/footer') %>
+
+            <!-- JavaScript -->
+            <script>
+                // Initialize map
+                let map;
+                let marker;
+                let polyline;
+                let trackingPoints = <% - JSON.stringify(locals.trackingPoints || []) %>;
+
+                function initMap() {
+                    // Use the last tracking point or store location as center
+                    const center = trackingPoints.length > 0
+                        ? {
+                            lat: trackingPoints[trackingPoints.length - 1].latitude,
+                            lng: trackingPoints[trackingPoints.length - 1].longitude
+                        }
+                        : { lat: 0, lng: 0 }; // Default center
+
+                    map = new google.maps.Map(document.getElementById('map'), {
+                        zoom: 15,
+                        center: center,
+                        mapTypeControl: true,
+                        streetViewControl: false
+                    });
+
+                    // Draw polyline from tracking points
+                    if (trackingPoints.length > 0) {
+                        const path = trackingPoints.map(point => ({
+                            lat: point.latitude,
+                            lng: point.longitude
+                        }));
+
+                        polyline = new google.maps.Polyline({
+                            path: path,
+                            geodesic: true,
+                            strokeColor: '#FF0000',
+                            strokeOpacity: 1.0,
+                            strokeWeight: 3
+                        });
+
+                        polyline.setMap(map);
+
+                        // Add markers
+                        trackingPoints.forEach((point, index) => {
+                            const marker = new google.maps.Marker({
+                                position: { lat: point.latitude, lng: point.longitude },
+                                map: map,
+                                title: `Update ${index + 1}`,
+                                label: (index + 1).toString(),
+                                icon: {
+                                    path: google.maps.SymbolPath.CIRCLE,
+                                    scale: 6,
+                                    fillColor: index === trackingPoints.length - 1 ? '#00FF00' : '#FF0000',
+                                    fillOpacity: 1,
+                                    strokeWeight: 2
+                                }
+                            });
+                        });
+
+                        // Add start and end markers
+                        if (trackingPoints.length > 1) {
+                            // Start marker
+                            new google.maps.Marker({
+                                position: { lat: trackingPoints[0].latitude, lng: trackingPoints[0].longitude },
+                                map: map,
+                                title: 'Pickup Location',
+                                icon: {
+                                    url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                                }
+                            });
+
+                            // End marker (delivery location)
+                            // You would add the delivery address marker here
+                        }
+                    }
+                }
+
+                // Countdown timer
+                function updateCountdown() {
+        <% if (order.estimated_delivery_time) { %>
+            const deliveryTime = new Date('<%= order.estimated_delivery_time %>').getTime();
+                        const now = new Date().getTime();
+                        const distance = deliveryTime - now;
+
+                        if (distance < 0) {
+                            document.getElementById('countdown').innerHTML = 'Delivered';
+                            return;
+                        }
+
+                        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+                        document.getElementById('countdown').innerHTML =
+                            `${hours}h ${minutes}m`;
+        <% } %>
+    }
+
+                // Refresh tracking data
+                function refreshTracking() {
+                    fetch(`/api/track?tracking_code=<%= order.tracking_code %>`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                // Update tracking points and reinitialize map
+                                trackingPoints = data.tracking_points || [];
+                                initMap();
+
+                                // Show success message
+                                showAlert('Tracking data updated!', 'success');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showAlert('Failed to update tracking', 'danger');
+                        });
+                }
+
+                // Copy tracking code
+                function copyTrackingCode() {
+                    const code = '<%= order.tracking_code %>';
+                    navigator.clipboard.writeText(code).then(() => {
+                        showAlert('Tracking code copied to clipboard!', 'success');
+                    });
+                }
+
+                // Submit issue report
+                function submitIssue() {
+                    const form = document.getElementById('issueForm');
+                    const formData = new FormData(form);
+                    formData.append('order_id', '<%= order.id %>');
+
+                    fetch('/api/report-issue', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showAlert('Issue reported successfully', 'success');
+                                $('#issueModal').modal('hide');
+                                form.reset();
+                            } else {
+                                showAlert(data.message || 'Failed to report issue', 'danger');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showAlert('Failed to report issue', 'danger');
+                        });
+                }
+
+                // Helper function to show alerts
+                function showAlert(message, type) {
+                    const alertDiv = document.createElement('div');
+                    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+                    alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+                    document.querySelector('main .container').prepend(alertDiv);
+
+                    setTimeout(() => {
+                        alertDiv.remove();
+                    }, 5000);
+                }
+
+                // Initialize
+                document.addEventListener('DOMContentLoaded', function () {
+                    updateCountdown();
+                    setInterval(updateCountdown, 60000); // Update every minute
+
+                    // Refresh tracking every 30 seconds
+                    setInterval(refreshTracking, 30000);
+                });
+            </script>
+
+            <!-- Google Maps API -->
+            <% if (mapApiKey) { %>
+                <script src="https://maps.googleapis.com/maps/api/js?key=<%= mapApiKey %>&callback=initMap" async
+                    defer></script>
+                <% } %>
+
+                    <!-- Helper functions (would be in a separate file) -->
+                    <script>
+                        function getStatusColor(status) {
+                            const colors = {
+                                'pending': 'secondary',
+                                'confirmed': 'info',
+                                'preparing': 'primary',
+                                'ready_for_pickup': 'warning',
+                                'picked_up': 'success',
+                                'in_transit': 'success',
+                                'delivered': 'success',
+                                'cancelled': 'danger'
+                            };
+                            return colors[status] || 'secondary';
+                        }
+
+                        function getVehicleIcon(type) {
+                            const icons = {
+                                'motorcycle': 'motorcycle',
+                                'bicycle': 'bicycle',
+                                'car': 'car',
+                                'walking': 'walking'
+                            };
+                            return icons[type] || 'car';
+                        }
+                    </script>

@@ -1,0 +1,399 @@
+<%- include('../partials/header', { title: 'Checkout' }) %>
+
+    <div class="container mt-4 mb-5">
+        <!-- Progress Stepper -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-8">
+                <div class="stepper d-flex justify-content-between position-relative">
+                    <div class="step active" data-step="1">
+                        <div class="step-icon"><i class="fas fa-shopping-cart"></i></div>
+                        <span class="step-label">Cart</span>
+                    </div>
+                    <div class="step active" data-step="2">
+                        <div class="step-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <span class="step-label">Delivery</span>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-icon"><i class="fas fa-credit-card"></i></div>
+                        <span class="step-label">Payment</span>
+                    </div>
+                    <div class="step" data-step="4">
+                        <div class="step-icon"><i class="fas fa-check"></i></div>
+                        <span class="step-label">Confirm</span>
+                    </div>
+                    <div class="progress position-absolute top-50 start-0 translate-middle-y w-100"
+                        style="height: 2px; z-index: -1;">
+                        <div class="progress-bar bg-primary" style="width: 33%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-8">
+                <div class="d-flex align-items-center mb-4 gap-3">
+                    <a href="/customer/cart" class="btn btn-light btn-sm rounded-circle"><i
+                            class="fas fa-arrow-left"></i></a>
+                    <h2 class="fw-bold m-0">Secure Checkout</h2>
+                </div>
+
+                <!-- 1. Delivery Options -->
+                <div class="checkout-section mb-4" id="deliverySection">
+                    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                        <div class="card-header bg-white border-bottom p-4">
+                            <h5 class="fw-bold mb-0">1. Delivery Details</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <!-- Address Selection -->
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-3">Choose
+                                Address</label>
+                            <div class="row g-3 mb-4">
+                                <% if (addresses && addresses.length> 0) { %>
+                                    <% addresses.forEach(address=> { %>
+                                        <div class="col-md-6">
+                                            <div class="address-card p-3 border rounded-3 <%= address.is_default ? 'active' : '' %> cursor-pointer"
+                                                data-address="<%= address.address_line1 + (address.address_line2 ? ', ' + address.address_line2 : '') + ', ' + address.city %>"
+                                                data-lat="<%= address.latitude %>" data-lng="<%= address.longitude %>">
+                                                <div class="d-flex justify-content-between mb-2">
+                                                    <span class="badge bg-primary-subtle text-primary">
+                                                        <%= address.label %>
+                                                    </span>
+                                                    <% if (address.is_default) { %>
+                                                        <i class="fas fa-check-circle text-primary"></i>
+                                                        <% } else { %>
+                                                            <i class="far fa-circle text-muted"></i>
+                                                            <% } %>
+                                                </div>
+                                                <p class="small mb-0 text-dark fw-500">
+                                                    <%= address.contact_name %>
+                                                </p>
+                                                <p class="small mb-0 text-muted text-truncate">
+                                                    <%= address.address_line1 %>
+                                                </p>
+                                                <p class="small mb-0 text-muted">
+                                                    <%= address.contact_phone %>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <% }) %>
+                                            <% } else { %>
+                                                <div class="col-12">
+                                                    <div class="alert alert-warning rounded-3 border-0 small">
+                                                        <i class="fas fa-exclamation-triangle me-2"></i> You have no
+                                                        saved addresses. Please add one to continue.
+                                                    </div>
+                                                </div>
+                                                <% } %>
+                                                    <div class="col-md-6">
+                                                        <a href="/customer/addresses"
+                                                            class="text-decoration-none h-100">
+                                                            <div class="address-card p-3 border rounded-3 cursor-pointer border-dashed d-flex align-items-center justify-content-center text-muted"
+                                                                style="min-height: 100px;">
+                                                                <div class="text-center">
+                                                                    <i class="fas fa-plus mb-2"></i>
+                                                                    <p class="small mb-0">Add New Address</p>
+                                                                </div>
+                                                            </div>
+                                                        </a>
+                                                    </div>
+                            </div>
+
+                            <!-- Delivery Time -->
+                            <label class="form-label small fw-bold text-muted text-uppercase mb-3">Delivery Time</label>
+                            <div class="d-flex gap-3 mb-4">
+                                <label class="time-option flex-fill p-3 border rounded-3 cursor-pointer active">
+                                    <input type="radio" name="deliveryTime" value="asap" checked class="d-none">
+                                    <h6 class="fw-bold mb-1">ASAP</h6>
+                                    <small class="text-muted">Delivery in 30-45 min</small>
+                                </label>
+                                <label class="time-option flex-fill p-3 border rounded-3 cursor-pointer">
+                                    <input type="radio" name="deliveryTime" value="schedule" class="d-none">
+                                    <h6 class="fw-bold mb-1">Schedule</h6>
+                                    <small class="text-muted">Choose a later time</small>
+                                </label>
+                            </div>
+
+                            <div class="mb-0">
+                                <label class="form-label small fw-bold text-muted text-uppercase mb-2">Delivery
+                                    Instructions</label>
+                                <textarea class="form-control border-dashed bg-light" id="deliveryNotes" rows="2"
+                                    placeholder="E.g. Apartment number, gate code, call upon arrival..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Payment Method -->
+                <div class="checkout-section mb-4" id="paymentSection">
+                    <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                        <div class="card-header bg-white border-bottom p-4">
+                            <h5 class="fw-bold mb-0">2. Payment Method</h5>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="payment-options d-grid gap-3">
+                                <label
+                                    class="payment-option p-3 border rounded-4 d-flex align-items-center gap-3 cursor-pointer active">
+                                    <input type="radio" name="paymentMethod" value="mpesa" checked class="d-none">
+                                    <div class="payment-icon bg-success bg-opacity-10 text-success p-2 rounded">
+                                        <i class="fas fa-mobile-alt"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="fw-bold mb-0">M-Pesa Express</h6>
+                                        <small class="text-muted">Instant payment via phone</small>
+                                    </div>
+                                    <div class="check-mark text-primary"><i class="fas fa-check-circle"></i></div>
+                                </label>
+
+                                <label
+                                    class="payment-option p-3 border rounded-4 d-flex align-items-center gap-3 cursor-pointer">
+                                    <input type="radio" name="paymentMethod" value="card" class="d-none">
+                                    <div class="payment-icon bg-info bg-opacity-10 text-info p-2 rounded">
+                                        <i class="fas fa-credit-card"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="fw-bold mb-0">Credit / Debit Card</h6>
+                                        <small class="text-muted">Visa, Mastercard, Amex</small>
+                                    </div>
+                                    <div class="check-mark text-primary"><i class="fas fa-check-circle"></i></div>
+                                </label>
+
+                                <label
+                                    class="payment-option p-3 border rounded-4 d-flex align-items-center gap-3 cursor-pointer">
+                                    <input type="radio" name="paymentMethod" value="cod" class="d-none">
+                                    <div class="payment-icon bg-warning bg-opacity-10 text-warning p-2 rounded">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="fw-bold mb-0">Cash on Delivery</h6>
+                                        <small class="text-muted">Pay at your doorstep</small>
+                                    </div>
+                                    <div class="check-mark text-primary"><i class="fas fa-check-circle"></i></div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="col-lg-4">
+                <div class="card shadow-lg border-0 rounded-4 p-4 sticky-top" style="top: 100px;">
+                    <h4 class="fw-bold mb-4">Order Summary</h4>
+
+                    <div class="cart-preview mb-4">
+                        <% cartItems.forEach(store=> { %>
+                            <div class="mb-3">
+                                <small class="fw-bold text-primary">
+                                    <%= store.store_name %>
+                                </small>
+                                <div class="list-group list-group-flush mt-1">
+                                    <% store.items.forEach(item=> { %>
+                                        <div
+                                            class="list-group-item bg-transparent border-0 p-0 mb-2 d-flex justify-content-between">
+                                            <span class="small text-muted">
+                                                <%= item.quantity %>x <%= item.product_name %>
+                                            </span>
+                                            <span class="small fw-bold">
+                                                <%= item.item_total %> KES
+                                            </span>
+                                        </div>
+                                        <% }) %>
+                                </div>
+                            </div>
+                            <% }) %>
+                    </div>
+
+                    <div class="price-breakdown border-top pt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Subtotal</span>
+                            <span>
+                                <%= totals.subtotal %> KES
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Delivery Fee</span>
+                            <span class="text-success">
+                                <%= totals.deliveryFee===0 ? 'FREE' : totals.deliveryFee + ' KES' %>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="text-muted">Service Fee</span>
+                            <span>
+                                <%= totals.platformFee %> KES
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-4 mt-2">
+                            <h5 class="fw-bold">Total</h5>
+                            <h5 class="fw-bold text-primary">
+                                <%= totals.total %> KES
+                            </h5>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-lg rounded-pill py-3 fw-bold" id="placeOrderBtn"
+                            onclick="placeOrder()">
+                            Complete Order <i class="fas fa-lock ms-2"></i>
+                        </button>
+                    </div>
+                    <p class="text-center text-muted small mt-3">By placing order you agree to our <a href="#"
+                            class="text-decoration-none">Terms of Service</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .stepper .step {
+            text-align: center;
+            z-index: 1;
+        }
+
+        .step-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            transition: all 0.3s;
+            color: #6c757d;
+        }
+
+        .step.active .step-icon {
+            background: var(--bs-primary);
+            border-color: var(--bs-primary);
+            color: #fff;
+            box-shadow: 0 0 0 5px rgba(67, 97, 238, 0.15);
+        }
+
+        .step-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #6c757d;
+        }
+
+        .step.active .step-label {
+            color: var(--bs-primary);
+        }
+
+        .address-card,
+        .time-option,
+        .payment-option {
+            transition: all 0.2s;
+            border-width: 2px !important;
+        }
+
+        .address-card.active,
+        .time-option.active,
+        .payment-option.active {
+            border-color: var(--bs-primary) !important;
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .address-card:hover:not(.active),
+        .time-option:hover:not(.active),
+        .payment-option:hover:not(.active) {
+            background-color: #f8f9fa;
+        }
+
+        .cursor-pointer {
+            cursor: pointer;
+        }
+
+        .border-dashed {
+            border-style: dashed !important;
+        }
+    </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // UI Logic for selection toggles
+        document.querySelectorAll('.address-card').forEach(card => {
+            card.addEventListener('click', () => {
+                if (card.classList.contains('border-dashed')) return; // Ignore "Add New" for now
+                document.querySelectorAll('.address-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+            });
+        });
+
+        document.querySelectorAll('.time-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.time-option').forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+                option.querySelector('input').checked = true;
+            });
+        });
+
+        document.querySelectorAll('.payment-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+                option.querySelector('input').checked = true;
+            });
+        });
+
+        async function placeOrder() {
+            const btn = document.getElementById('placeOrderBtn');
+            const originalText = btn.innerHTML;
+
+            // Collect data
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+            const deliveryTime = document.querySelector('input[name="deliveryTime"]:checked').value;
+            const notes = document.getElementById('deliveryNotes').value;
+            const address = document.querySelector('.address-card.active').dataset.address;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Processing...';
+
+            try {
+                const response = await fetch('/customer/checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        paymentMethod,
+                        deliveryAddress: address,
+                        deliveryTime,
+                        notes,
+                        latitude: document.querySelector('.address-card.active').dataset.lat,
+                        longitude: document.querySelector('.address-card.active').dataset.lng
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update Stepper to step 4
+                    document.querySelector('.step[data-step="3"]').classList.add('active');
+                    document.querySelector('.step[data-step="4"]').classList.add('active');
+                    document.querySelector('.progress-bar').style.width = '100%';
+
+                    Swal.fire({
+                        title: 'Success!',
+                        text: 'Your order has been placed. You can track it in real-time.',
+                        icon: 'success',
+                        confirmButtonText: 'Track Order',
+                        confirmButtonColor: '#4361ee'
+                    }).then(() => {
+                        window.location.href = '/customer/orders';
+                    });
+                } else {
+                    Swal.fire('Failed', data.message, 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error('Order placement error:', error);
+                Swal.fire('Error', 'An unexpected error occurred. Please try again.', 'error');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }
+    </script>
+
+    <%- include('../partials/footer') %>
+
+        <%- include('../partials/footer') %>
